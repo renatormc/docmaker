@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "doctpl"
+version = "0.1.0"
+description = ""
+authors = ["renatormc <renatomartinsrmc@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+jinja2 = "^3.1.2"
+pydantic = "^2.4.2"
+pillow = "^10.1.0"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
