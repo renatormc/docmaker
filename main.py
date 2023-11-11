@@ -1,15 +1,18 @@
 import argparse
 from pathlib import Path
-from doctpl import config
+import config
 import sys
 import os
 import stat
+from doctpl.helpers import add_to_path
+import json
 
 def link_macro():
     folder = Path.home()
-    for item in folder.glob("**/libreoffice/**/Scripts/**/python"):
+    aux = "Libreoffice" if os.name == "nt" else "libreoffice"
+    for item in folder.glob(f"**/{aux}/**/Scripts/**/python"):
         if item.is_dir():
-            pfrom = config.LIBDIR / "macros/doctpl.py"
+            pfrom = config.APPDIR / "doctpl/macros/doctpl.py"
             pto = item / "doctpl.py"
             try:
                 pto.unlink()
@@ -37,7 +40,23 @@ match args.command:
         link_macro()
     case "install":
         if os.name == "nt":
-            raise Exception("Not implemented for Windows yet")
+            rmc_folder = Path.home() / ".rmc"
+            for d in [rmc_folder / "bin", rmc_folder / "etc"]:
+                try:
+                    d.mkdir(parents=True)
+                except FileExistsError:
+                    pass
+            lines = [
+                f"{sys.executable} {config.APPDIR / 'main.py'} %*"
+            ]
+            bin_folder = rmc_folder / "bin"
+            add_to_path(bin_folder)
+            path = bin_folder / "doctpl.bat"
+            text = "\n".join(lines)
+            path.write_text(text)
+            with (rmc_folder / "etc/doctpl.json").open("w") as f:
+                f.write(json.dumps({"python_interpreter": sys.executable}))
+            link_macro()
         else:
             lines = [
                 "#!/bin/bash",
@@ -58,9 +77,7 @@ match args.command:
     case "gui":
         from PySide6.QtWidgets import QApplication
         from doctpl.gui.main_window import MainWindow
-        # from models.celular.form import Form
-        from doctpl.helpers import inspect_models_folder
-        forms = inspect_models_folder(config.MODELS_DIR)
+        from models import forms
         app = QApplication(sys.argv)
         w = MainWindow(forms, args.dir)
         w.show()

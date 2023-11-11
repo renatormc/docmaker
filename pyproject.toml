@@ -13,6 +13,7 @@ pillow = "^10.1.0"
 flask = "^3.0.0"
 bootstrap-flask = "^2.3.2"
 pyside6 = "^6.6.0"
+python-dotenv = "^1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

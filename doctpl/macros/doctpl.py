@@ -6,32 +6,49 @@ import logging
 import os
 import json
 from pathlib import Path
+import tempfile
+import subprocess
+from uuid import uuid4
+import shutil
 
 
 class Helper:
-    def __init__(self) -> None:
+    def __init__(self, files_dir=None) -> None:
         self.doc = XSCRIPTCONTEXT.getDocument()
-        filename = str(self.file_path("log.log"))
-        logging.basicConfig(filename=str(self.file_path(
-            "log.log")), encoding='utf-8', level=logging.DEBUG)
+        self.files_dir = Path(files_dir) if files_dir else self.get_docdir()
+        path = Path.home() / ".rmc/log/doctpl.log"
+        try:
+            path.parent.mkdir(parents=True)
+        except FileExistsError:
+            pass
+        logging.basicConfig(filename=str(
+            path), encoding='utf-8', level=logging.DEBUG)
         logging.info("Teste")
         self.render_info = self.read_info()
+        self.doctpl_config = self.read_doctpl_config()
 
-    def read_info(self):
-        path = self.file_path("info.json")
-        logging.info(str(path))
+    def read_doctpl_config(self):
+        path = Path.home() / ".rmc/etc/doctpl.json"
         if path.exists():
             with path.open("r", encoding="utf-8") as f:
                 data = json.load(f)
             return data
 
-    def file_path(self, relpath: str) -> Path:
+    def read_info(self):
+        path = self.file_path("info.json")
+        if path.exists():
+            with path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data
+
+    def get_docdir(self) -> Path:
         dir_ = self.doc.getURL()
         if os.name == "nt":
-            path = Path(dir_.replace("file:///", "")).parent / relpath
-        else:
-            path = Path(dir_.replace("file://", "")).parent / relpath
-        return path
+            return Path(dir_.replace("file:///", "")).parent
+        return Path(dir_.replace("file://", "")).parent
+
+    def file_path(self, relpah) -> Path:
+        return self.files_dir / relpah
 
     def get_subdoc_url(self, name) -> str:
         aux = self.doc.getURL()
@@ -83,3 +100,25 @@ class Helper:
 def pos_process():
     helper = Helper()
     helper.pos_process()
+
+
+def add_document():
+    helper = Helper()
+    try:
+        temp_dir = Path(tempfile.gettempdir()) / uuid4().hex
+        logging.info(f"Creating \"{temp_dir}\"")
+        os.system(f"doctpl.ps1 gui -d \"{temp_dir}\"")
+        project_folder = Path(
+            helper.doctpl_config['python_interpreter']).parent.parent.parent
+        python = project_folder / \
+            ".venv/Scripts/python.exe" if os.name == "nt" else project_folder / ".venv/bin/python"
+        logging.info(str(python))
+        subprocess.Popen(
+            ["cmd", "/K", str(python), str(project_folder / "main.py"), 'gui', '-d', str(temp_dir)])
+    finally:
+        try:
+            logging.info(f"Removing \"{temp_dir}\"")
+            shutil.rmtree(temp_dir)
+        except FileNotFoundError:
+
+            pass

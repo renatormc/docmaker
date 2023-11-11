@@ -14,7 +14,9 @@ class Image:
     def __init__(self, renderer: 'Renderer') -> None:
         self.renderer = renderer
 
-    def __call__(self, path: Path | str, w: int | None = None, h: int | None = None) -> Any:
+    def __call__(self, path: Path | str | None, w: int | None = None, h: int | None = None) -> Any:
+        if not path:
+            return ""
         if w is None and h is None:
             raise Exception("w or h is required")
         img = PilImage.open(path)

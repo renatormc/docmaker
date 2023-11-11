@@ -1,10 +1,10 @@
-from doctpl import config
+import config
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QMessageBox, QWidget
-
+from PySide6.QtWidgets import QMessageBox, QWidget, QSpacerItem, QSizePolicy
+from typing import Literal
 
 def get_icon(name):
-    return QIcon(str(config.LIBDIR / "gui/assets/images" / name)) 
+    return QIcon(str(config.APPDIR / "doctpl/gui/assets/images" / name)) 
 
 
 def ask_confirmation(parent: QWidget, title: str, message: str) -> bool:
@@ -22,4 +22,9 @@ def ask_confirmation(parent: QWidget, title: str, message: str) -> bool:
     if msg_box.clickedButton() == btn_yes:
         return True
     return False
+
+def spacer(direction: Literal["horizontal", "vertical"]) -> QSpacerItem:
+    if direction == "horizontal":
+        return QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+    return QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
