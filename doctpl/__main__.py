@@ -28,6 +28,9 @@ p_link_macro = subparsers.add_parser("link-macro")
 
 p_install = subparsers.add_parser("install")
 
+p_gui = subparsers.add_parser("gui")
+p_gui.add_argument("-d", "--dir", required=True, help="Directory to generate pre compiled files")
+
 args = parser.parse_args()
 match args.command:
     case "link-macro":
@@ -52,4 +55,14 @@ match args.command:
             path.chmod(st.st_mode | stat.S_IEXEC)
             link_macro()
             
+    case "gui":
+        from PySide6.QtWidgets import QApplication
+        from doctpl.gui.main_window import MainWindow
+        # from models.celular.form import Form
+        from doctpl.helpers import inspect_models_folder
+        forms = inspect_models_folder(config.MODELS_DIR)
+        app = QApplication(sys.argv)
+        w = MainWindow(forms, args.dir)
+        w.show()
+        sys.exit(app.exec())
    
