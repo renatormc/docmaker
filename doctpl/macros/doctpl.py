@@ -15,9 +15,10 @@ import shutil
 
 class Helper:
     def __init__(self, files_dir=None) -> None:
+        self.DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
         self.doc = XSCRIPTCONTEXT.getDocument()
-        self.files_dir = Path(files_dir) if files_dir else self.get_docdir()
-        path = Path.home() / ".rmc/log/doctpl.log"
+        self._files_dir = files_dir
+        path =  self.DOCTPL_HOME / ".local/doctpl.log"
         try:
             path.parent.mkdir(parents=True)
         except FileExistsError:
@@ -39,13 +40,25 @@ class Helper:
         if os.name == "nt":
             return Path(dir_.replace("file:///", "")).parent
         return Path(dir_.replace("file://", "")).parent
+    
+    def get_doc_path(self) -> Path:
+        dir_ = self.doc.getURL()
+        if os.name == "nt":
+            return Path(dir_.replace("file:///", ""))
+        return Path(dir_.replace("file://", ""))
 
     def file_path(self, relpah) -> Path:
-        return self.files_dir / relpah
+        return self.get_files_dir() / relpah
 
     def get_subdoc_url(self, name) -> str:
-        aux = self.doc.getURL()
-        return f"{aux}/subdocs/{name}"
+        return (self.get_files_dir() / f"subdocs/{name}").as_uri()
+    
+    def get_files_dir(self) -> Path:
+        if self._files_dir is None:
+            p = self.get_doc_path()
+            self._files_dir = p.parent / f"{p.stem}_"
+        return self._files_dir
+       
 
     def add_image(self, path, w, h, cur):
         path = Path(path).absolute()
@@ -105,18 +118,30 @@ def pos_process():
 
 def add_document():
     try:
-        temp_dir = Path(tempfile.gettempdir()) / uuid4().hex
-        helper = Helper(files_dir=temp_dir)
-        logging.info(f"Creating \"{temp_dir}\"")
-        temp_dir.mkdir()
 
-        exe = Path.home() / ".local/bin/doctpl"
-        subprocess.check_call([str(exe), 'gui', '-d', str(temp_dir)])
-        helper.add_subdoc_on_current_position(temp_dir / "main.odt")
+        # temp_file = Path(tempfile.gettempdir()) / f"{uuid4().hex}.odt"
+        DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
+        temp_file = DOCTPL_HOME / f".local/tmp/{uuid4().hex}.odt"
+        temp_dir = temp_file.parent / f"{temp_file.stem}_"
+        helper = Helper(files_dir=temp_dir)
+        python = helper.DOCTPL_HOME / ".venv/Scripts/python.exe" if os.name == "nt" else helper.DOCTPL_HOME / ".venv/bin/python"
+        args = [str(python), str(helper.DOCTPL_HOME / "main.py"), 'new', str(temp_file)]
+        import shlex
+        cmd = shlex.join(args)
+        logging.info(cmd)
+        # out = subprocess.getoutput(shlex.join(args))
+        # logging.info(out)
+        # os.system(shlex.join(args))
+        subprocess.check_call(args, shell=True)
+        helper.add_subdoc_on_current_position(temp_file)
     finally:
         try:
             logging.info(f"Removing \"{temp_dir}\"")
             shutil.rmtree(temp_dir)
         except FileNotFoundError:
-
+            pass
+        try:
+            logging.info(f"Removing \"{temp_file}\"")
+            temp_file.unlink()
+        except FileNotFoundError:
             pass

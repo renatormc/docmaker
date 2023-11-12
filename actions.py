@@ -7,15 +7,12 @@ def show_gui(directory: Path):
     from PySide6.QtWidgets import QApplication
     from doctpl.gui.main_window import MainWindow
     import models
-    import logging
 
     path = Path.home() / ".rmc/log/doctpl.log"
     try:
         path.parent.mkdir(parents=True)
     except FileExistsError:
         pass
-    logging.basicConfig(filename=str(
-        path), encoding='utf-8', level=logging.DEBUG)
     app = QApplication(sys.argv)
     forms: list[BaseForm] = []
     for entry in (config.APPDIR / "models").iterdir():

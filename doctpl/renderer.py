@@ -7,16 +7,64 @@ from .render_info import RenderInfo, PicInfo
 import json
 from doctpl.filters import filters
 
+
+class RenderFiles:
+    def __init__(self, doc_file: Path) -> None:
+        self.doc_file = doc_file
+        self.render_dir = doc_file.parent / f"{doc_file.stem}_"
+        self.render_info = RenderInfo(pics={})
+
+    def init(self, overwrite=False) -> None:
+        if overwrite:
+            self.clear()
+        try:
+            self.render_dir.mkdir()
+        except FileExistsError:
+            pass
+        try:
+            self.subdocs_dir.mkdir()
+        except FileExistsError:
+            pass
+
+    @property
+    def subdocs_dir(self) -> Path:
+        return self.render_dir / "subdocs"
+    
+    @property
+    def render_info_file(self) -> Path:
+        return self.render_dir / "info.json"
+
+    def save(self):
+        with self.render_info_file.open("w", encoding="utf-8") as f:
+            f.write(json.dumps(self.render_info.model_dump(),
+                    ensure_ascii=False, indent=4))
+
+    def load_info(self) -> RenderInfo:
+        with self.render_info_file.open("r", encoding="utf-8") as f:
+            self.render_info = json.load(f)
+        return self.render_info
+
+    def clear(self) -> None:
+        try:
+            shutil.rmtree(self.render_dir)
+        except FileNotFoundError:
+            pass
+        try:
+            self.doc_file.unlink()
+        except FileNotFoundError:
+            pass
+
+
 class Renderer:
 
     def __init__(self, model_dir: str | Path) -> None:
-        self._pre_render_dir: Path | None = None
+        self._render_files: RenderFiles | None = None
         self.model_dir = Path(model_dir)
         self._subdoc_counter = 0
         self._pic_counter = 0
         self.filters: dict[str, Callable] = {}
         self.globals: dict[str, Callable] = {}
-        self.render_info: RenderInfo = RenderInfo(pics={})
+    
 
     def new_engine(self) -> sct.Renderer:
         engine = sct.Renderer()
@@ -37,19 +85,15 @@ class Renderer:
     def add_pic(self, path: Path | str, w: int, h: int) -> PicInfo:
         self._pic_counter += 1
         p = PicInfo(w=w, h=h, number=self._pic_counter, path=str(path))
-        self.render_info.pics[str(self._pic_counter)] = p
+        self.render_files.render_info.pics[str(self._pic_counter)] = p
         return p
-    
-    def save_info(self):
-        p = self.pre_render_dir / "info.json"
-        with p.open("w", encoding="utf-8") as f:
-            f.write(json.dumps(self.render_info.model_dump(), ensure_ascii=False, indent=4))
+
 
     @property
-    def pre_render_dir(self) -> Path:
-        if self._pre_render_dir is None:
-            raise Exception("pre_render_dir not set")
-        return self._pre_render_dir
+    def render_files(self) -> RenderFiles:
+        if self._render_files is None:
+            raise Exception("render_files not set")
+        return self._render_files
 
     def filter(self, name: str):
         def decorator(f):
@@ -72,13 +116,7 @@ class Renderer:
             f.write(result)
 
     def pre_render(self, template: str, dest: str | Path, overwrite=False, **kwargs):
-        self._pre_render_dir = Path(dest)
-        if overwrite:
-            try:
-                shutil.rmtree(self._pre_render_dir)
-            except FileNotFoundError:
-                pass
-        self._pre_render_dir.mkdir()
-        (self._pre_render_dir / "subdocs").mkdir()
-        self.render(template, self._pre_render_dir / "main.odt", **kwargs)
-        self.save_info()
+        self._render_files = RenderFiles(dest)
+        self.render_files.init(overwrite=overwrite)
+        self.render(template, dest, **kwargs)
+        self.render_files.save()

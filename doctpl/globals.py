@@ -36,6 +36,6 @@ class SubDoc:
 
     def __call__(self, template: str,  **kwds: Any) -> Any:
         name = self.renderer.gen_subdoc_name()
-        dest = self.renderer.pre_render_dir / "subdocs" / name
+        dest = self.renderer.render_files.subdocs_dir / name
         self.renderer.render(template, dest, **kwds)
         return totag("subdoc", name)
