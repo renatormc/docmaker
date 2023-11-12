@@ -6,6 +6,8 @@ import os
 import stat
 from doctpl.helpers import add_to_path
 import json
+from doctpl.gui.form import BaseForm
+import actions as act
 
 def link_macro():
     folder = Path.home()
@@ -34,6 +36,8 @@ p_install = subparsers.add_parser("install")
 p_gui = subparsers.add_parser("gui")
 p_gui.add_argument("-d", "--dir", required=True, help="Directory to generate pre compiled files")
 
+p_start = subparsers.add_parser("start")
+
 args = parser.parse_args()
 match args.command:
     case "link-macro":
@@ -58,9 +62,11 @@ match args.command:
                 f.write(json.dumps({"python_interpreter": sys.executable}))
             link_macro()
         else:
+            p = Path(sys.executable).parent / "activate"
             lines = [
                 "#!/bin/bash",
-                f"{sys.executable} -m doctpl $@"
+                f"source {p}",
+                f"python {config.APPDIR / 'main.py'} $@"
             ]
             text = "\n".join(lines)
             folder = Path.home() / ".local/bin"
@@ -75,11 +81,7 @@ match args.command:
             link_macro()
             
     case "gui":
-        from PySide6.QtWidgets import QApplication
-        from doctpl.gui.main_window import MainWindow
-        from models import forms
-        app = QApplication(sys.argv)
-        w = MainWindow(forms, args.dir)
-        w.show()
-        sys.exit(app.exec())
+        act.show_gui(args.dir)
+    case "start":
+        act.show_gui(Path("./doc"))
    

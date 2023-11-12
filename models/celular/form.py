@@ -2,7 +2,7 @@ from doctpl.gui.form import BaseForm
 from doctpl.gui import widgets as wt
 
 
-class CelularForm(BaseForm):
+class Form(BaseForm):
     name = "Celular"
     widgets = [
         [

@@ -4,6 +4,7 @@ from typing import Type
 from pathlib import Path
 from doctpl.renderer import Renderer
 from doctpl.gui.helpers import spacer, get_icon
+import logging
 
 
 class MainWindow(QMainWindow):
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowIcon(get_icon("writer.png"))
         self.setWindowTitle("DocTpl")
+        self.resize(800, 600)
 
     def connections(self):
         self.cbx_form.currentTextChanged.connect(self.change_model)
@@ -59,8 +61,11 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Erro de formulário",
                                 "Há erros em seu formulário. Corrija-os antes de prosseguir.")
             return
+        
+        logging.info(f"templates_dir: {self.current_form.templates_dir}")
         r = Renderer(self.current_form.templates_dir)
         try:
             r.pre_render("main.odt", self.dest_dir, overwrite=True, **context)
+            self.close()
         except Exception as e:
             QMessageBox.warning(self, "Erro", str(e))

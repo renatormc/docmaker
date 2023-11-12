@@ -1,5 +1,6 @@
 from com.sun.star.text.TextContentAnchorType import AS_CHARACTER
 from com.sun.star.awt import Size
+from com.sun.star.beans import PropertyValue
 from pathlib import Path
 import re
 import logging
@@ -25,14 +26,6 @@ class Helper:
             path), encoding='utf-8', level=logging.DEBUG)
         logging.info("Teste")
         self.render_info = self.read_info()
-        self.doctpl_config = self.read_doctpl_config()
-
-    def read_doctpl_config(self):
-        path = Path.home() / ".rmc/etc/doctpl.json"
-        if path.exists():
-            with path.open("r", encoding="utf-8") as f:
-                data = json.load(f)
-            return data
 
     def read_info(self):
         path = self.file_path("info.json")
@@ -67,6 +60,14 @@ class Helper:
         cur.Text.insertTextContent(cur, img, False)
         height = alfa*h
         img.setSize(Size(width, height))
+
+    def add_subdoc_on_current_position(self, path: Path):
+        current_controller = self.doc.getCurrentController()
+        cur = current_controller.getViewCursor()
+        cursor = cur.Text.createTextCursor()
+        cursor.gotoEnd(False)
+        cursor.insertDocumentFromURL(path.as_uri(), ())
+
 
     def add_subdoc(self, name: str, cur):
         path = self.file_path(f"subdocs/{name}")
@@ -103,18 +104,15 @@ def pos_process():
 
 
 def add_document():
-    helper = Helper()
     try:
         temp_dir = Path(tempfile.gettempdir()) / uuid4().hex
+        helper = Helper(files_dir=temp_dir)
         logging.info(f"Creating \"{temp_dir}\"")
-        os.system(f"doctpl.ps1 gui -d \"{temp_dir}\"")
-        project_folder = Path(
-            helper.doctpl_config['python_interpreter']).parent.parent.parent
-        python = project_folder / \
-            ".venv/Scripts/python.exe" if os.name == "nt" else project_folder / ".venv/bin/python"
-        logging.info(str(python))
-        subprocess.Popen(
-            ["cmd", "/K", str(python), str(project_folder / "main.py"), 'gui', '-d', str(temp_dir)])
+        temp_dir.mkdir()
+
+        exe = Path.home() / ".local/bin/doctpl"
+        subprocess.check_call([str(exe), 'gui', '-d', str(temp_dir)])
+        helper.add_subdoc_on_current_position(temp_dir / "main.odt")
     finally:
         try:
             logging.info(f"Removing \"{temp_dir}\"")

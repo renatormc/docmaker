@@ -5,6 +5,7 @@ import shutil
 from typing import Callable
 from .render_info import RenderInfo, PicInfo
 import json
+from doctpl.filters import filters
 
 class Renderer:
 
@@ -21,6 +22,8 @@ class Renderer:
         engine = sct.Renderer()
         engine.environment.globals['image'] = gl.Image(self)
         engine.environment.globals['subdoc'] = gl.SubDoc(self)
+        for filter_ in filters:
+            engine.environment.filters[filter_.__name__] = filter_
         for name, f in self.filters.items():
             engine.environment.filters[name] = f
         for name, f in self.globals.items():
