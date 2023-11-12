@@ -129,10 +129,10 @@ def add_document():
         import shlex
         cmd = shlex.join(args)
         logging.info(cmd)
-        # out = subprocess.getoutput(shlex.join(args))
-        # logging.info(out)
+        out = subprocess.getoutput(cmd)
+        logging.info(out)
         # os.system(shlex.join(args))
-        subprocess.check_call(args, shell=True)
+        # subprocess.check_call(args, shell=True)
         helper.add_subdoc_on_current_position(temp_file)
     finally:
         try:
