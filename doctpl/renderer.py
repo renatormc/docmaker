@@ -6,19 +6,26 @@ from typing import Callable
 from .render_info import RenderInfo, PicInfo
 import json
 from doctpl.filters import filters
-
+import hashlib
+import config
 
 class RenderFiles:
     def __init__(self, doc_file: Path) -> None:
-        self.doc_file = doc_file
-        self.render_dir = doc_file.parent / f"{doc_file.stem}_"
+        self.doc_file = Path(doc_file).absolute()
+        self.files_dir = self.gen_files_dir()
         self.render_info = RenderInfo(pics={})
+
+    def gen_files_dir(self) -> Path:
+        hash = hashlib.md5()
+        hash.update(str(self.doc_file).encode('utf-8'))
+        hashed_string = hash.hexdigest()
+        return config.TEMPDIR / hashed_string
 
     def init(self, overwrite=False) -> None:
         if overwrite:
             self.clear()
         try:
-            self.render_dir.mkdir()
+            self.files_dir.mkdir()
         except FileExistsError:
             pass
         try:
@@ -28,11 +35,11 @@ class RenderFiles:
 
     @property
     def subdocs_dir(self) -> Path:
-        return self.render_dir / "subdocs"
+        return self.files_dir / "subdocs"
     
     @property
     def render_info_file(self) -> Path:
-        return self.render_dir / "info.json"
+        return self.files_dir / "info.json"
 
     def save(self):
         with self.render_info_file.open("w", encoding="utf-8") as f:
@@ -46,7 +53,7 @@ class RenderFiles:
 
     def clear(self) -> None:
         try:
-            shutil.rmtree(self.render_dir)
+            shutil.rmtree(self.files_dir)
         except FileNotFoundError:
             pass
         try:
@@ -115,8 +122,8 @@ class Renderer:
         with dest.open('wb') as f:
             f.write(result)
 
-    def pre_render(self, template: str, dest: str | Path, overwrite=False, **kwargs):
-        self._render_files = RenderFiles(dest)
+    def pre_render(self, template: str, doc_file: Path,  overwrite=False, **kwargs):
+        self._render_files = RenderFiles(doc_file)
         self.render_files.init(overwrite=overwrite)
-        self.render(template, dest, **kwargs)
+        self.render(template, doc_file, **kwargs)
         self.render_files.save()

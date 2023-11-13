@@ -3,7 +3,7 @@ import sys
 import config
 from doctpl.gui.form import BaseForm
 
-def show_gui(directory: Path):
+def show_gui():
     from PySide6.QtWidgets import QApplication
     from doctpl.gui.main_window import MainWindow
     import models
@@ -23,6 +23,6 @@ def show_gui(directory: Path):
                 forms.append(Form)
             except AttributeError:
                 pass
-    w = MainWindow(forms, directory)
+    w = MainWindow(forms)
     w.show()
     sys.exit(app.exec())

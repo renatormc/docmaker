@@ -1,6 +1,5 @@
 from com.sun.star.text.TextContentAnchorType import AS_CHARACTER
 from com.sun.star.awt import Size
-from com.sun.star.beans import PropertyValue
 from pathlib import Path
 import re
 import logging
@@ -15,17 +14,23 @@ import shutil
 
 class Helper:
     def __init__(self, files_dir=None) -> None:
+        
         self.DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
-        self.doc = XSCRIPTCONTEXT.getDocument()
-        self._files_dir = files_dir
-        path =  self.DOCTPL_HOME / ".local/doctpl.log"
+        path =  Path(self.DOCTPL_HOME) / ".local/doctpl.log"
         try:
             path.parent.mkdir(parents=True)
         except FileExistsError:
             pass
-        logging.basicConfig(filename=str(
-            path), encoding='utf-8', level=logging.DEBUG)
-        logging.info("Teste")
+        logging.basicConfig(filename=str(path), encoding='utf-8', level=logging.DEBUG)
+    
+        self.TEMPDIR = self.DOCTPL_HOME / ".local/tmp"
+        try:
+            self.TEMPDIR.mkdir(parents=True)
+        except FileExistsError:
+            pass
+        self.doc = XSCRIPTCONTEXT.getDocument()
+        self._files_dir = Path(files_dir) if files_dir is not None else None
+        logging.info(str(self._files_dir))
         self.render_info = self.read_info()
 
     def read_info(self):
@@ -109,39 +114,53 @@ class Helper:
             action, args = res.group(1), res.group(2).split(",")
             args = [arg.strip() for arg in args]
             self.replace_action(action, args, selFound)
+    
 
 
-def pos_process():
-    helper = Helper()
+def pos_process(files_dir: str):
+    helper = Helper(files_dir)
     helper.pos_process()
 
+def add_doc(path: str):
+    helper = Helper()
+    helper.add_subdoc_on_current_position(path)
 
-def add_document():
-    try:
+def test():
+    # subprocess.check_call(['cmd', '/c', 'doctpl', 'gui'], shell=True)
+    DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
+    launcher = DOCTPL_HOME / "launcher.exe"
+    clean_env = os.environ.copy()
+    clean_env.clear()
+    subprocess.check_call([str(launcher)], env=clean_env)
 
-        # temp_file = Path(tempfile.gettempdir()) / f"{uuid4().hex}.odt"
-        DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
-        temp_file = DOCTPL_HOME / f".local/tmp/{uuid4().hex}.odt"
-        temp_dir = temp_file.parent / f"{temp_file.stem}_"
-        helper = Helper(files_dir=temp_dir)
-        python = helper.DOCTPL_HOME / ".venv/Scripts/python.exe" if os.name == "nt" else helper.DOCTPL_HOME / ".venv/bin/python"
-        args = [str(python), str(helper.DOCTPL_HOME / "main.py"), 'new', str(temp_file)]
-        import shlex
-        cmd = shlex.join(args)
-        logging.info(cmd)
-        out = subprocess.getoutput(cmd)
-        logging.info(out)
-        # os.system(shlex.join(args))
-        # subprocess.check_call(args, shell=True)
-        helper.add_subdoc_on_current_position(temp_file)
-    finally:
-        try:
-            logging.info(f"Removing \"{temp_dir}\"")
-            shutil.rmtree(temp_dir)
-        except FileNotFoundError:
-            pass
-        try:
-            logging.info(f"Removing \"{temp_file}\"")
-            temp_file.unlink()
-        except FileNotFoundError:
-            pass
+
+
+# def add_document():
+#     try:
+
+#         # temp_file = Path(tempfile.gettempdir()) / f"{uuid4().hex}.odt"
+#         DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
+#         temp_file = DOCTPL_HOME / f".local/tmp/{uuid4().hex}.odt"
+#         temp_dir = temp_file.parent / f"{temp_file.stem}_"
+#         helper = Helper(files_dir=temp_dir)
+#         python = helper.DOCTPL_HOME / ".venv/Scripts/python.exe" if os.name == "nt" else helper.DOCTPL_HOME / ".venv/bin/python"
+#         args = [str(python), str(helper.DOCTPL_HOME / "main.py"), 'new', str(temp_file)]
+#         import shlex
+#         cmd = shlex.join(args)
+#         logging.info(cmd)
+#         out = subprocess.getoutput(cmd)
+#         logging.info(out)
+#         # os.system(shlex.join(args))
+#         # subprocess.check_call(args, shell=True)
+#         helper.add_subdoc_on_current_position(temp_file)
+#     finally:
+#         try:
+#             logging.info(f"Removing \"{temp_dir}\"")
+#             shutil.rmtree(temp_dir)
+#         except FileNotFoundError:
+#             pass
+#         try:
+#             logging.info(f"Removing \"{temp_file}\"")
+#             temp_file.unlink()
+#         except FileNotFoundError:
+#             pass
