@@ -45,7 +45,7 @@ match args.command:
     case "build":
         # args = ['go', 'build', '-ldflags', '-H=windowsgui', '-o', '.local/doctpl.exe', 'launcher.go']
         args = ['go', 'build', '-o', '.local/doctpl.exe', 'launcher.go']
-        subprocess.run(args)
+        subprocess.run(args)        
     # case "new":
     #     path = Path(args.filename).absolute()
     #     if path.suffix == ".odt": 

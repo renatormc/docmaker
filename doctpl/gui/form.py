@@ -5,7 +5,7 @@ from doctpl.gui.widgets.widget import WidgetMatrix
 from PySide6.QtWidgets import QFileDialog
 import json
 from pathlib import Path
-# from database import repo
+import repo
 
 
 class BaseForm(SComposite):
@@ -16,15 +16,14 @@ class BaseForm(SComposite):
     def __init__(self):
         super(BaseForm, self).__init__(self.widgets, model_name=self.name)
         
-    
 
-    # def save_last_data(self):
-    #     data = self.serialize()
-    #     repo.save_last_data(self.model_info.name,  data)
+    def save_last_context(self):
+        data = self.serialize()
+        repo.save_last_context(self.name,  data)
 
-    # def load_last_data(self):
-    #     data = repo.get_last_data(self.model_info.name)
-    #     self.load(data)
+    def load_last_context(self):
+        data = repo.get_last_context_by_model(self.name)
+        self.load(data)
 
     def save_to_file(self, file_: Optional[str] = None):
         data = self.serialize()

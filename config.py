@@ -1,7 +1,9 @@
 from pathlib import Path
 import os
+from typing import Literal
 from dotenv import load_dotenv
 load_dotenv()
+
 
 APPDIR = Path(os.path.dirname(os.path.realpath(__file__)))
 LOCAL_FOLDER = APPDIR / ".local"
@@ -20,5 +22,6 @@ if os.name == "nt":
     if not path.is_file() or path.suffix != ".exe":
         raise Exception(f"LOFFICE_EXE doesn't point to an exe file")
     LOFFICE_EXE = str(path)
+ENV: Literal['prod', 'dev'] = os.getenv("ENV") or "prod"
 
 

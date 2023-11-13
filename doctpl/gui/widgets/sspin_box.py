@@ -76,6 +76,7 @@ class SSpinBox:
         w.setLayout(l)
         l.addWidget(QLabel(self.label))
         self._w = QSpinBox()
+        self._w.setValue(self.default)
         if self.min:
             self._w.setMinimum(self.min)
         if self.max:
