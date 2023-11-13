@@ -6,7 +6,10 @@ class Form(BaseForm):
     name = "Teste"
     widgets = [
         [
-            wt.SText("name", label="Name"),
+            wt.SText("names", label="Names", converter=lambda x: x.split(",")),
         ],
-
     ]
+
+    def pre_process(self, context: dict) -> dict:
+        context['title'] = "Título 1"
+        return context

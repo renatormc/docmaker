@@ -1,53 +1,36 @@
 from com.sun.star.text.TextContentAnchorType import AS_CHARACTER
 from com.sun.star.awt import Size
+import uno
 from pathlib import Path
 import re
 import logging
 import os
 import json
 from pathlib import Path
-import tempfile
-import subprocess
-from uuid import uuid4
-import shutil
+
+
+XSCRIPTCONTEXT_ = XSCRIPTCONTEXT
+DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
+logging.basicConfig(filename=str(
+    DOCTPL_HOME / ".local/doctpl.log"), level=logging.DEBUG)
 
 
 class Helper:
-    def __init__(self, files_dir=None) -> None:
-        
-        self.DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
-        path =  Path(self.DOCTPL_HOME) / ".local/doctpl.log"
-        try:
-            path.parent.mkdir(parents=True)
-        except FileExistsError:
-            pass
-        logging.basicConfig(filename=str(path), encoding='utf-8', level=logging.DEBUG)
-    
-        self.TEMPDIR = self.DOCTPL_HOME / ".local/tmp"
-        try:
-            self.TEMPDIR.mkdir(parents=True)
-        except FileExistsError:
-            pass
-        self.doc = XSCRIPTCONTEXT.getDocument()
-        self._files_dir = Path(files_dir) if files_dir is not None else None
-        logging.info(str(self._files_dir))
-        self.render_info = self.read_info()
+    def __init__(self) -> None:
+        self._read_info = None
+        self._files_dir: Path | None = None
 
-    def read_info(self):
-        path = self.file_path("info.json")
-        if path.exists():
-            with path.open("r", encoding="utf-8") as f:
-                data = json.load(f)
-            return data
+    def get_read_info(self):
+        if self._read_info is None:
+            path = self.file_path("info.json")
+            if path.exists():
+                with path.open("r", encoding="utf-8") as f:
+                    self._read_info = json.load(f)
+        return self._read_info
 
-    def get_docdir(self) -> Path:
-        dir_ = self.doc.getURL()
-        if os.name == "nt":
-            return Path(dir_.replace("file:///", "")).parent
-        return Path(dir_.replace("file://", "")).parent
-    
     def get_doc_path(self) -> Path:
-        dir_ = self.doc.getURL()
+        doc = XSCRIPTCONTEXT_.getDocument()
+        dir_ = doc.getURL()
         if os.name == "nt":
             return Path(dir_.replace("file:///", ""))
         return Path(dir_.replace("file://", ""))
@@ -57,19 +40,21 @@ class Helper:
 
     def get_subdoc_url(self, name) -> str:
         return (self.get_files_dir() / f"subdocs/{name}").as_uri()
-    
+
     def get_files_dir(self) -> Path:
         if self._files_dir is None:
-            p = self.get_doc_path()
-            self._files_dir = p.parent / f"{p.stem}_"
+            raise Exception("files_dir was not set")
         return self._files_dir
-       
+
+    def set_files_dir(self, files_dir: Path) -> None:
+        self._files_dir = files_dir
 
     def add_image(self, path, w, h, cur):
+        doc = XSCRIPTCONTEXT_.getDocument()
         path = Path(path).absolute()
         if not path.exists():
             print(f"File {path} do not exist")
-        img = self.doc.createInstance('com.sun.star.text.TextGraphicObject')
+        img = doc.createInstance('com.sun.star.text.TextGraphicObject')
         img.GraphicURL = path.as_uri()
         img.setPropertyValue('AnchorType', AS_CHARACTER)
         width = w*100
@@ -79,13 +64,28 @@ class Helper:
         height = alfa*h
         img.setSize(Size(width, height))
 
-    def add_subdoc_on_current_position(self, path: Path):
-        current_controller = self.doc.getCurrentController()
-        cur = current_controller.getViewCursor()
-        cursor = cur.Text.createTextCursor()
-        cursor.gotoEnd(False)
-        cursor.insertDocumentFromURL(path.as_uri(), ())
+    def add_subdoc_on_selection(self, path: Path):
+        self.replace_selection("{{ replace }}")
+        cur = self.find_variable("replace")
+        if cur:
+            cur.insertDocumentFromURL(path.as_uri(), ())
+        logging.info(str(cur))
+        
 
+    def replace_selection(self, text):
+        desktop = XSCRIPTCONTEXT_.getDesktop()
+        model = desktop.getCurrentComponent()
+        selection = model.getCurrentSelection()
+        selection.getByIndex(0).setString(text)
+
+    def find_variable(self, var):
+        doc = XSCRIPTCONTEXT_.getDocument()
+        replace = doc.createReplaceDescriptor()
+        replace.SearchRegularExpression = True
+        reg = r'\{\{\s*$var\s*\}\}'.replace("$var", var)
+        replace.SearchString = reg
+        selsFound = doc.findAll(replace)
+        return doc.findFirst(replace)
 
     def add_subdoc(self, name: str, cur):
         path = self.file_path(f"subdocs/{name}")
@@ -102,11 +102,12 @@ class Helper:
             self.add_subdoc(args[0], cur)
 
     def pos_process(self):
-        replace = self.doc.createReplaceDescriptor()
+        doc = XSCRIPTCONTEXT_.getDocument()
+        replace = doc.createReplaceDescriptor()
         replace.SearchRegularExpression = True
         reg = r'@(.{1,15}?)\((.{1,100}?)\)'
         replace.SearchString = reg
-        selsFound = self.doc.findAll(replace)
+        selsFound = doc.findAll(replace)
         for i in range(0, selsFound.getCount()):
             selFound = selsFound.getByIndex(i)
             name = selFound.getString().strip()
@@ -114,53 +115,35 @@ class Helper:
             action, args = res.group(1), res.group(2).split(",")
             args = [arg.strip() for arg in args]
             self.replace_action(action, args, selFound)
-    
 
 
-def pos_process(files_dir: str):
-    helper = Helper(files_dir)
-    helper.pos_process()
+class Funcs:
+    def pos_process(self, files_dir: str):
+        helper = Helper()
+        helper.set_files_dir(Path(files_dir))
+        helper.pos_process()
 
-def add_doc(path: str):
-    helper = Helper()
-    helper.add_subdoc_on_current_position(path)
+    def add_doc(self, path: str):
+        helper = Helper()
+        helper.add_subdoc_on_selection(Path(path))
 
-def test():
-    # subprocess.check_call(['cmd', '/c', 'doctpl', 'gui'], shell=True)
-    DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
-    launcher = DOCTPL_HOME / "launcher.exe"
-    clean_env = os.environ.copy()
-    clean_env.clear()
-    subprocess.check_call([str(launcher)], env=clean_env)
-
+    def test(self, message):
+        desktop = XSCRIPTCONTEXT_.getDesktop()
+        model = desktop.getCurrentComponent()
+        text = model.Text
+        cursor = text.createTextCursor()
+        text.insertString(cursor, message, False)
 
 
-# def add_document():
-#     try:
+def run_func(base64_str):
+    import base64
+    json_bytes = base64.b64decode(base64_str)
+    json_str = json_bytes.decode('utf-8')
+    data = json.loads(json_str)
+    funcs = Funcs()
+    getattr(funcs, data['func'])(*data['args'], **data['kwargs'])
 
-#         # temp_file = Path(tempfile.gettempdir()) / f"{uuid4().hex}.odt"
-#         DOCTPL_HOME = Path(os.getenv("DOCTPL_HOME"))
-#         temp_file = DOCTPL_HOME / f".local/tmp/{uuid4().hex}.odt"
-#         temp_dir = temp_file.parent / f"{temp_file.stem}_"
-#         helper = Helper(files_dir=temp_dir)
-#         python = helper.DOCTPL_HOME / ".venv/Scripts/python.exe" if os.name == "nt" else helper.DOCTPL_HOME / ".venv/bin/python"
-#         args = [str(python), str(helper.DOCTPL_HOME / "main.py"), 'new', str(temp_file)]
-#         import shlex
-#         cmd = shlex.join(args)
-#         logging.info(cmd)
-#         out = subprocess.getoutput(cmd)
-#         logging.info(out)
-#         # os.system(shlex.join(args))
-#         # subprocess.check_call(args, shell=True)
-#         helper.add_subdoc_on_current_position(temp_file)
-#     finally:
-#         try:
-#             logging.info(f"Removing \"{temp_dir}\"")
-#             shutil.rmtree(temp_dir)
-#         except FileNotFoundError:
-#             pass
-#         try:
-#             logging.info(f"Removing \"{temp_file}\"")
-#             temp_file.unlink()
-#         except FileNotFoundError:
-#             pass
+
+def open_doctpl():
+    import subprocess
+    subprocess.Popen(['doctpl'], shell=True)

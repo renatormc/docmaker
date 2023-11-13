@@ -3,6 +3,8 @@ import importlib.util
 from pathlib import Path
 import subprocess
 import config
+import os
+
 
 def inspect_models_folder(models_folder: Path) -> list[BaseForm]:
     forms: list[BaseForm] = []
@@ -45,6 +47,14 @@ def add_to_path(folder_path):
     else:
         print(
             f"The folder {folder_path} is already in the PATH variable for the current user.")
-        
+
+
 def open_doc(path: Path) -> None:
     subprocess.Popen([config.LOFFICE_EXE, "--writer", str(path)])
+
+
+def open_in_filemanager(path: Path) -> None:
+    if os.name == "nt":
+        subprocess.Popen(['explorer.exe', str(path)])
+    else:
+        raise Exception("Not implemented for linux yet")

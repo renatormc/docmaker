@@ -1,18 +1,22 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 )
 
 func main() {
-	doctplHome := os.Getenv("DOCTPL_HOME")
-	cmd := exec.Command(filepath.Join(doctplHome, ".venv", "Scripts", "python.exe"), filepath.Join(doctplHome, "main.py"), "gui")
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
+
+	DOCTPL_HOME := os.Getenv("DOCTPL_HOME")
+	args := []string{filepath.Join(DOCTPL_HOME, "main.py")}
+	args = append(args, os.Args[1:]...)
+	cmd := exec.Command(filepath.Join(DOCTPL_HOME, ".venv", "Scripts", "python.exe"), args...)
+	err := cmd.Run()
+
+	if err != nil {
+		println(err.Error())
+		return
 	}
+
 }

@@ -4,7 +4,7 @@ from typing import Type
 from pathlib import Path
 from doctpl.renderer import Renderer
 from doctpl.gui.helpers import spacer, get_icon
-from doctpl.helpers import open_doc
+from doctpl.helpers import open_doc, open_in_filemanager
 from doctpl.writer_handler import WriterHandler
 import config
 from uuid import uuid4
@@ -41,7 +41,14 @@ class MainWindow(QMainWindow):
     def create_buttons(self):
         self.lay_buttons = QHBoxLayout()
         self.lay_buttons.addSpacerItem(spacer("horizontal"))
+
         
+        self.btn_open_templates = QPushButton("Templates")
+        self.btn_open_templates.setMinimumHeight(45)
+        self.btn_open_templates.setMinimumWidth(120)
+        self.lay_buttons.addWidget(self.btn_open_templates)
+
+
         self.btn_open_writer = QPushButton("Abrir Writer")
         self.btn_open_writer.setMinimumHeight(45)
         self.btn_open_writer.setMinimumWidth(120)
@@ -64,6 +71,7 @@ class MainWindow(QMainWindow):
         self.cbx_form.currentTextChanged.connect(self.change_model)
         self.btn_render_file.clicked.connect(self.render_file)
         self.btn_render_writer.clicked.connect(self.render_to_writer)
+        self.btn_open_templates.clicked.connect(self.open_templates)
 
     def change_model(self, value):
         self.load_model(value)
@@ -96,7 +104,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.information(self, "Pós processamento",
                                 "Aguarde o documento terminar de ser aberto no Writer e clique em OK.")
                 wh = WriterHandler()
-                wh.pos_process(renderer.render_files.files_dir)
+                wh.run_macro("pos_process", str(renderer.render_files.files_dir))
                 self.close()
             except Exception as e:
                 QMessageBox.warning(self, "Erro", str(e))
@@ -106,6 +114,8 @@ class MainWindow(QMainWindow):
                 except FileNotFoundError:
                     pass
                          
+    def open_templates(self):
+        open_in_filemanager(self.current_form.templates_dir)
 
     def render_to_writer(self):
         context, errors = self.current_form.get_context()
@@ -113,14 +123,14 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Erro de formulário",
                                 "Há erros em seu formulário. Corrija-os antes de prosseguir.")
             return
+        context = self.current_form.pre_process(context)
         path = config.TEMPDIR / f"{uuid4().hex}.odt"
         renderer = Renderer(self.current_form.templates_dir)
         try:
-            print("ASDFFF")
             renderer.pre_render("main.odt", path, overwrite=True, **context)
             wh = WriterHandler()
-            wh.add_doc(path)
-            wh.pos_process(renderer.render_files.files_dir)
+            wh.run_macro("add_doc", str(path))
+            wh.run_macro("pos_process", str(renderer.render_files.files_dir))
             self.close()
         except Exception as e:
             QMessageBox.warning(self, "Erro", str(e))

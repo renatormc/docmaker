@@ -2,27 +2,27 @@ import os
 import subprocess
 import config
 from pathlib import Path
+from datetime import datetime
+import json
 
 class WriterHandler:
     def __init__(self) -> None:
-        pass
+        self.current_run_file: Path | None = None
 
-    def run_macro(self, url):
+    def _run_macro(self, url):
         if os.name == "nt":
             url = url.replace("\"", "\\\"")
             text = f"vnd.sun.star.script:{url}?language=Python&location=user"
-            print(text)
             res = subprocess.check_output([config.LOFFICE_EXE, text])
-            print(res)
         else:
             cmd = f"soffice 'vnd.sun.star.script:{url}?language=Python&location=user'"
             os.system(cmd)
 
-    def pos_process(self, files_folder: Path):
-        url = f"doctpl.py$pos_process(\"{files_folder}\")"
-        print(url)
-        self.run_macro(url)
-
-    def add_doc(self, path: Path):
-        url = f"doctpl.py$add_doc(\"{path}\")"
-        self.run_macro(url)
+    def run_macro(self, func: str, *args, **kwargs) -> None:
+        import base64
+        data = {"func": func, "args": args, "kwargs": kwargs}
+        json_str = json.dumps(data)
+        base64_encoded = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+        url = f"doctpl.py$run_func('{base64_encoded}')"
+        self._run_macro(url)
+        
