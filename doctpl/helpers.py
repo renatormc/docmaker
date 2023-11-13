@@ -49,8 +49,11 @@ def add_to_path(folder_path):
             f"The folder {folder_path} is already in the PATH variable for the current user.")
 
 
-def open_doc(path: Path) -> None:
-    subprocess.Popen([config.LOFFICE_EXE, "--writer", str(path)])
+def open_writer(path: Path | None = None) -> None:
+    args = [config.LOFFICE_EXE, "--writer"]
+    if path:
+        args.append(path)
+    subprocess.Popen(args)
 
 
 def open_in_filemanager(path: Path) -> None:

@@ -5,7 +5,7 @@ from typing import Type
 from pathlib import Path
 from doctpl.renderer import Renderer
 from doctpl.gui.helpers import spacer, get_icon
-from doctpl.helpers import open_doc, open_in_filemanager
+from doctpl.helpers import open_writer, open_in_filemanager
 from doctpl.writer_handler import WriterHandler
 import config
 from uuid import uuid4
@@ -43,10 +43,13 @@ class MainWindow(QMainWindow):
             try:
                 form = self.forms[last_context["model_name"]]
                 print(last_context["model_name"])
-                self.load_form(form.name)
+                self.load_form(form.name, last_context["context"])
+                return
             except KeyError:
-                name = [name for name in self.forms.keys()]
-                self.load_form(name)
+                pass
+        else:
+            name = [name for name in self.forms.keys()][0]
+            self.load_form(name)
         
     def setup_ui(self):
         self.main_layout = QVBoxLayout()
@@ -114,6 +117,7 @@ class MainWindow(QMainWindow):
         self.btn_render_writer.clicked.connect(self.render_to_writer)
         self.btn_open_templates.clicked.connect(self.open_templates)
         self.btn_clear.clicked.connect(self.clear_form)
+        self.btn_open_writer.clicked.connect(open_writer)
 
     def clear_form(self):
         self.current_form.clear_content()
@@ -150,7 +154,7 @@ class MainWindow(QMainWindow):
             try:
                 renderer.pre_render("main.odt", save_file,
                                     overwrite=True, **context)
-                open_doc(save_file)
+                open_writer(save_file)
                 QMessageBox.information(self, "Pós processamento",
                                         "Aguarde o documento terminar de ser aberto no Writer e clique em OK.")
                 wh = WriterHandler()
