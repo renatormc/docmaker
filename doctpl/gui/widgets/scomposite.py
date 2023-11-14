@@ -1,23 +1,24 @@
-from typing import  Optional, Tuple
+from typing import  Optional, Tuple, TYPE_CHECKING
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QToolButton, QLabel
 from PySide6.QtCore import Signal
 from doctpl.custom_types import FormError
 from doctpl.gui.widgets.widget import Widget
 from doctpl.gui.widgets.types import ValidationError
 from doctpl.gui.helpers import get_icon
-
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
 
 class SComposite(QWidget):
     removeRequested = Signal(int)
     cloneRequested = Signal(int)
 
     def __init__(self, widgets: list[list[Widget]],
-            color: Optional[str] = None, is_array_child=False, index: int = 0, model_name: Optional[str] = None) -> None:
+            color: Optional[str] = None, is_array_child=False, index: int = 0, docmodel: Optional['DocModel'] = None) -> None:
         super().__init__()
         self._index = index
         self.color = color
         self.widgets = widgets
-        self._model_name: Optional[str] = model_name
+        self._docmodel: Optional[DocModel] = docmodel
         self.widgets_map: dict[str, Widget] = {}
         for row in self.widgets:
             for item in row:
@@ -36,13 +37,13 @@ class SComposite(QWidget):
         if self.lbl_index is not None:
             self.lbl_index.setText(str(value + 1))
 
-    def set_model_name(self, model_name: str) -> None:
-        self._model_name = model_name
+    def set_docmodel(self, docmodel: 'DocModel') -> None:
+        self._docmodel = docmodel
 
-    def get_model_name(self) -> str:
-        if self._model_name is None:
-            raise Exception("Model name was not set")
-        return self._model_name
+    def get_docmodel(self) -> 'DocModel':
+        if self._docmodel is None:
+            raise Exception("Docmodel was not set")
+        return self._docmodel
 
     def setup_ui(self):
         self.lay_main = QVBoxLayout()
@@ -77,11 +78,10 @@ class SComposite(QWidget):
             h_layout = QHBoxLayout()
             self.lay_main.addLayout(h_layout)
             for i, item in enumerate(row):
-                item.set_model_name(self.get_model_name())
+                item.set_docmodel(self.get_docmodel())
                 w = item.get_widget()
                 h_layout.addWidget(w)
                 h_layout.setStretch(i, item.stretch)
-                # h_layout.setContentsMargins(0,0,0,0)
         spacer_item = QSpacerItem(40, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.lay_main.addSpacerItem(spacer_item)
         if self.color:

@@ -2,18 +2,16 @@ from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QC
 from PySide6.QtCore import QSize
 from doctpl.gui.form import Form
 from pathlib import Path
-from doctpl.renderer import OdtHandler
+from doctpl.doc_handler import DocxHandler
 from doctpl.gui.helpers import spacer, get_icon
-from doctpl.helpers import open_writer, open_in_filemanager
-from doctpl.writer_handler import WriterHandler
 from doctpl.config import get_config
-from uuid import uuid4
-import shutil
 import traceback
 import doctpl.repo as repo
 from doctpl.custom_types import ContextType
 from doctpl.docmodel import DocModel
-
+from doctpl.helpers import  open_in_filemanager
+from .context_dialog import ContextDialog
+import os
 
 class MainWindow(QMainWindow):
     def __init__(self, docmodels: list[DocModel]) -> None:
@@ -65,7 +63,7 @@ class MainWindow(QMainWindow):
 
         self.create_buttons()
 
-        self.setWindowIcon(get_icon("writer.png"))
+        # self.setWindowIcon(get_icon("writer.png"))
         self.setWindowTitle("DocTpl")
         self.resize(1000, 800)
 
@@ -79,7 +77,7 @@ class MainWindow(QMainWindow):
         self.btn_open_templates.setMinimumHeight(45)
         self.btn_open_templates.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_open_templates)
-
+       
         self.btn_clear = QPushButton("Limpar")
         self.btn_clear.setIcon(get_icon("clear.png"))
         self.btn_clear.setIconSize(QSize(40, 40))
@@ -87,12 +85,13 @@ class MainWindow(QMainWindow):
         self.btn_clear.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_clear)
 
-        self.btn_open_writer = QPushButton("Abrir Writer")
-        self.btn_open_writer.setIcon(get_icon("writer.png"))
-        self.btn_open_writer.setIconSize(QSize(25, 25))
-        self.btn_open_writer.setMinimumHeight(45)
-        self.btn_open_writer.setMinimumWidth(120)
-        self.lay_buttons.addWidget(self.btn_open_writer)
+        self.btn_context = QPushButton("Gerar contexto")
+        self.btn_context.setIcon(get_icon("json.png"))
+        self.btn_context.setIconSize(QSize(25, 25))
+        self.btn_context.setMinimumHeight(45)
+        self.btn_context.setMinimumWidth(120)
+        self.lay_buttons.addWidget(self.btn_context)
+
 
         self.btn_render_file = QPushButton("Renderizar arquivo")
         self.btn_render_file.setIcon(get_icon("file.png"))
@@ -101,23 +100,15 @@ class MainWindow(QMainWindow):
         self.btn_render_file.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_render_file)
 
-        self.btn_render_writer = QPushButton("Renderizar no Writer")
-        self.btn_render_writer.setIcon(get_icon("paste.png"))
-        self.btn_render_writer.setIconSize(QSize(25, 25))
-        self.btn_render_writer.setMinimumHeight(45)
-        self.btn_render_writer.setMinimumWidth(120)
-        self.lay_buttons.addWidget(self.btn_render_writer)
-
         self.main_layout.addLayout(self.lay_buttons)
 
     def connections(self):
         self.cbx_form.currentTextChanged.connect(self.change_model)
         self.btn_render_file.clicked.connect(self.render_file)
-        self.btn_render_writer.clicked.connect(self.render_to_writer)
-        self.btn_open_templates.clicked.connect(self.open_templates)
         self.btn_clear.clicked.connect(self.clear_form)
-        self.btn_open_writer.clicked.connect(open_writer)
-
+        self.btn_open_templates.clicked.connect(self.open_templates)
+        self.btn_context.clicked.connect(self.show_context)
+  
     def clear_form(self):
         self.current_form.clear_content()
 
@@ -127,79 +118,58 @@ class MainWindow(QMainWindow):
     def choose_save_file(self) -> Path | None:
         file_dialog = QFileDialog()
         file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
-        file_dialog.setNameFilter("ODT Files (*.odt)")
-        file_dialog.setDefaultSuffix("odt")
+        file_dialog.setNameFilter("DOCX Files (*.docx)")
+        file_dialog.setDefaultSuffix("docx")
         file_dialog.setDirectory(str(Path(".").absolute()))
         if file_dialog.exec_():
             return Path(file_dialog.selectedFiles()[0])
         return None
-
-    def render_file(self):
-        context, errors = self.current_form.get_context()
-        if errors:
-            QMessageBox.warning(self, "Erro de formulário",
-                                "Há erros em seu formulário. Corrija-os antes de prosseguir.")
-            return
-        repo.save_last_context_dev(context, False)
-        context = self.current_form.pre_process(context)
-        repo.save_last_context_dev(context, True)
-        self.current_form.save_last_context()
-
-        repo.save_last_context_dev(context, True)
-        cf = get_config()
-        save_file = cf.local_folder / \
-            "compiled.odt" if cf.env == "dev" else self.choose_save_file()
-        if save_file:
-            renderer = OdtHandler(self.current_form.docmodel.templates_folder)
-            try:
-                renderer.pre_render("main.odt", save_file,
-                                    overwrite=True, **context)
-                open_writer(save_file)
-                QMessageBox.information(self, "Pós processamento",
-                                        "Aguarde o documento terminar de ser aberto no Writer e clique em OK.")
-                wh = WriterHandler()
-                wh.run_macro("pos_process", str(
-                    renderer.render_files.files_dir))
-                self.close()
-            except Exception as e:
-                traceback.print_exc()
-                QMessageBox.warning(self, "Erro", str(e))
-            finally:
-                try:
-                    shutil.rmtree(renderer.render_files.files_dir)
-                except FileNotFoundError:
-                    pass
-
+    
     def open_templates(self):
         open_in_filemanager(self.current_form.docmodel.templates_folder)
 
-    def render_to_writer(self):
+    def render(self, save_file: Path) -> bool:
+        context = self.gen_context()
+        if context is None:
+            return False
+        hd = DocxHandler(self.current_form.docmodel)
+        try:
+            hd.render("main.docx", context, save_file)
+            return True
+        except Exception as e:
+            traceback.print_exc()
+            QMessageBox.warning(self, "Erro", str(e))
+            return False
+
+
+    def render_file(self):
+        cf = get_config()
+        save_file = cf.local_folder /  "compiled.docx" if cf.env == "dev" else self.choose_save_file()
+        if save_file:
+            res = self.render(save_file)
+            if res:
+                os.startfile(save_file)
+            
+
+    def gen_context(self) -> ContextType | None:
         context, errors = self.current_form.get_context()
         if errors:
             QMessageBox.warning(self, "Erro de formulário",
                                 "Há erros em seu formulário. Corrija-os antes de prosseguir.")
-            return
+            return None
         repo.save_last_context_dev(context, False)
         context = self.current_form.pre_process(context)
         repo.save_last_context_dev(context, True)
         self.current_form.save_last_context()
-        path = get_config().tempdir / f"{uuid4().hex}.odt"
-        renderer = OdtHandler(self.current_form.docmodel.templates_folder)
-        try:
-            renderer.pre_render("main.odt", path, overwrite=True, **context)
-            wh = WriterHandler()
-            wh.run_macro("add_doc", str(path))
-            wh.run_macro("pos_process", str(renderer.render_files.files_dir))
-            self.close()
-        except Exception as e:
-            traceback.print_exc()
-            QMessageBox.warning(self, "Erro", str(e))
-        finally:
-            try:
-                shutil.rmtree(renderer.render_files.files_dir)
-            except FileNotFoundError:
-                pass
-            try:
-                path.unlink()
-            except FileNotFoundError:
-                pass
+        return context
+    
+    def show_context(self):
+        context = self.gen_context()
+        if context is None:
+            return
+        dialog = ContextDialog(self, context)
+        dialog.exec()
+
+          
+
+

@@ -7,7 +7,6 @@ LIBDIR = Path(os.path.dirname(os.path.realpath(__file__)))
 
 class Config:
     def __init__(self) -> None:
-        self.loffice_exe = "soffice"
         self.env: EnvType = "prod"
         self._local_folder: Path = Path("./local")
         self._tempdir = self.local_folder / "tmp"

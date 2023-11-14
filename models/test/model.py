@@ -13,7 +13,7 @@ test_model.widgets = [
 ]
 
 
-@test_model.pre_process
+@test_model.pre_process()
 def pre_process(context: dict) -> dict:
     context['title'] = "Título 1"
     return context

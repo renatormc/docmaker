@@ -5,12 +5,14 @@ import json
 from pathlib import Path
 import doctpl.repo as repo
 from doctpl.docmodel import DocModel
+from doctpl.custom_types import ContextType
+from doctpl.helpers import read_json_file, write_json_file
 
 class Form(SComposite):
 
     def __init__(self, docmodel: DocModel):
         self.docmodel = docmodel
-        super(Form, self).__init__(docmodel.widgets, model_name=docmodel.name)
+        super(Form, self).__init__(docmodel.widgets, docmodel=docmodel)
 
     def save_last_context(self):
         data = self.serialize()
@@ -25,8 +27,9 @@ class Form(SComposite):
         file_ = file_ or QFileDialog.getSaveFileName(
             self, "Escolha o arquivo",  ".", "JSON (*.json)")[0]
         if file_:
-            with Path(file_).open("w", encoding="utf-8") as f:
-                f.write(json.dumps(data, ensure_ascii=False, indent=4))
+            write_json_file(file_, data)
+            # with Path(file_).open("w", encoding="utf-8") as f:
+            #     f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
     def load_from_file(self, file_: Optional[str] = None) -> None:
         file_ = file_ or QFileDialog.getOpenFileName(
@@ -34,21 +37,9 @@ class Form(SComposite):
         if file_:
             path = Path(file_)
             if path.exists():
-                with Path(file_).open("r", encoding="utf-8") as f:
-                    data = json.load(f)
+                data = read_json_file(file_)
                 self.load(data)
 
-    def pre_process(self, context: dict) -> dict:
-        return context
-
-    # def load_data(self, data: dict) -> None:
-    #     for key, w in self.widgets_map.items():
-    #         try:
-    #             w.load(data[key])
-    #         except Exception:
-    #             pass
-
-    # def clear_content(self):
-    #     for row in self.widgets:
-    #         for item in row:
-    #             item.clear_content()
+    def pre_process(self, context: ContextType) -> ContextType:
+        return self.docmodel.apply_pre_process(context)
+       

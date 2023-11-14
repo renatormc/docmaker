@@ -1,5 +1,7 @@
-from typing import Any, Protocol
+from typing import Any, Protocol, TYPE_CHECKING
 from PySide6.QtWidgets import QWidget
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
 
 WidgetMatrix = list[list['Widget']]
 
@@ -24,10 +26,10 @@ class Widget(Protocol):
     def clear_content(self) -> None:
         ...
 
-    def set_model_name(self, model_name: str) -> None:
+    def set_docmodel(self, docmodel: 'DocModel') -> None:
         ...
 
-    def get_model_name(self) -> str:
+    def get_docmodel(self) -> 'DocModel':
         ...
 
     @property

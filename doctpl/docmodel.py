@@ -5,13 +5,17 @@ from pathlib import Path
 
 
 class DocModel:
-    def __init__(self, name: str, widgets: WidgetMatrix | None = None, templates_folder: Path | str | None = None) -> None:
+    def __init__(self, name: str, 
+                 widgets: WidgetMatrix | None = None, 
+                 templates_folder: Path | str | None = None,
+                 lists_folder: Path | str | None = None) -> None:
         self.name = name
         self._widgets = widgets
         self.filters: dict[str, Callable] = {}
         self.global_funcs: dict[str, Callable] = {}
         self._pre_process: Callable[[ContextType], ContextType] | None = None
         self._templates_folder: Path | None = Path(templates_folder) if templates_folder else None
+        self._lists_folder: Path | None = Path(lists_folder) if lists_folder else None
 
     @property
     def widgets(self) -> WidgetMatrix:
@@ -22,6 +26,17 @@ class DocModel:
     @widgets.setter
     def widgets(self, value: WidgetMatrix) -> None:
         self._widgets = value
+
+    @property
+    def lists_folder(self) -> Path:
+        if self._lists_folder is None:
+            raise Exception("lists_folder was not set")
+        return self._lists_folder
+
+    @lists_folder.setter
+    def lists_folder(self, value: Path | str) -> None:
+        self._lists_folder = Path(value)
+
 
     @property
     def templates_folder(self) -> Path:
@@ -45,8 +60,14 @@ class DocModel:
             return f
         return decorator
 
-    def pre_process(self, context: ContextType):
+    def pre_process(self):
         def decorator(f: Callable[[ContextType], ContextType]):
             self._pre_process = f
             return f
         return decorator
+    
+    def apply_pre_process(self, context: ContextType) -> ContextType:
+        if self._pre_process is not None:
+            return self._pre_process(context)
+        return context
+    

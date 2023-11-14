@@ -1,7 +1,9 @@
 from typing import Any, TypedDict
 from doctpl.custom_types import ConverterType
 from doctpl.gui.widgets.types import ValidationError
-# from database import repo
+from pathlib import Path
+import json
+from doctpl.helpers import read_json_file
 
 def apply_converter(value, converter: ConverterType) -> Any:
     try:
@@ -18,9 +20,15 @@ def to_list_item(value: str|ChoicesType) -> ChoicesType:
         return {'key': value, 'data': value}
     return value
 
-def get_list(choices: list|str, model_name: str) -> list[ChoicesType]:
+def get_list(choices: list|str, lists_folder: Path) -> list[ChoicesType]:
     if isinstance(choices, list):
         return [to_list_item(item) for item in choices]
     elif isinstance(choices, str):
-        return [{"key": item.key, "data": item.data} for item in repo.get_list(model_name, choices)]
+        try:
+            data = read_json_file(lists_folder / f"{choices}.json")
+            # with (lists_folder / f"{choices}.json").open("r", encoding="utf-8") as f:
+            #     data = json.load(f)
+            return [{"key": item['key'], "data": item['value']} for item in data]
+        except FileNotFoundError:
+            return []
     return []

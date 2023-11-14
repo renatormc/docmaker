@@ -1,24 +1,9 @@
-from doctpl.gui.form import Form
-import importlib.util
 from pathlib import Path
 import subprocess
 from doctpl.config import get_config
 import os
-
-
-def inspect_models_folder(models_folder: Path) -> list[Form]:
-    forms: list[Form] = []
-    for entry in models_folder.iterdir():
-        path = entry / "form.py"
-        if path.exists():
-            spec = importlib.util.spec_from_file_location(
-                entry.name, path.absolute())
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            loaded_class: Form = getattr(module, "Form")
-            loaded_class.templates_dir = entry / "templates"
-            forms.append(loaded_class)
-    return forms
+import json
+from typing import Any
 
 
 def folder_in_path(folder_path):
@@ -61,3 +46,13 @@ def open_in_filemanager(path: Path) -> None:
         subprocess.Popen(['explorer.exe', str(path)])
     else:
         raise Exception("Not implemented for linux yet")
+
+
+def read_json_file(path: Path | str) -> Any:
+    with Path(path).open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def write_json_file(path: Path | str, data: Any) -> None:
+    with Path(path).open("w", encoding="utf-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False, indent=4, default=str))

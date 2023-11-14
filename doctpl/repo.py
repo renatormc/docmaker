@@ -1,10 +1,17 @@
 from tinydb import TinyDB, Query
+from tinydb.storages import JSONStorage
+from tinydb_serialization import SerializationMiddleware
+from tinydb_serialization.serializers import DateTimeSerializer
 from doctpl.config import get_config
-import json
 from datetime import datetime
 from typing import TypedDict
 from doctpl.custom_types import ContextType
 from pathlib import Path
+from doctpl.helpers import read_json_file, write_json_file
+
+serialization = SerializationMiddleware(JSONStorage)
+serialization = SerializationMiddleware(JSONStorage)
+serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
 
 
 _db: TinyDB | None = None
@@ -17,7 +24,7 @@ def get_db() -> TinyDB:
 
 def connect(path: Path) -> None:
     global _db
-    _db = TinyDB(path)
+    _db = TinyDB(path, storage=serialization)
 
 
 def save_last_context(model_name: str, context: ContextType) -> None:
@@ -61,16 +68,14 @@ def get_last_context() -> LastContext | None:
 def save_last_context_dev(context: ContextType, full: bool) -> None:
     cf = get_config()
     name = "last_context_dev_full.json" if full else "last_context_dev_filled.json"
-    with (cf.local_folder / name).open("w", encoding="utf8") as f:
-        f.write(json.dumps(context, ensure_ascii=False, indent=4))
+    write_json_file(cf.local_folder / name, context)
+   
 
 
 def get_last_filled_context(full: bool) -> ContextType:
     cf = get_config()
     name = "last_context_dev_full.json" if full else "last_context_dev_filled.json"
     try:
-        with (cf.local_folder / name).open("r", encoding="utf8") as f:
-            context = json.load(f)
-        return context
+        return read_json_file(cf.local_folder / name)
     except FileNotFoundError:
         return {}

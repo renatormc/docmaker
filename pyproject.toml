@@ -16,6 +16,8 @@ pyside6 = "^6.6.0"
 python-dotenv = "^1.0.0"
 tinydb = "^4.8.0"
 docxtpl = "^0.16.7"
+beautifulsoup4 = "^4.12.2"
+tinydb-serialization = "^2.1.1"
 
 
 [tool.poetry.group.dev.dependencies]

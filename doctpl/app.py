@@ -6,18 +6,16 @@ from doctpl.config import get_config
 from pathlib import Path
 from doctpl.custom_types import EnvType
 from doctpl import repo
+from doctpl.gui.helpers import get_icon
 
 class App:
     def __init__(self, local_folder: str | Path,
-                 loffice_exe: str,
                  docmodels: list[DocModel] = [],
                  env: EnvType | None = None) -> None:
         self.docmodels = docmodels
         self.set_local_folder(local_folder)
         if env:
             self.set_env(env)
-
-        self.set_loffice_exe(loffice_exe)
         repo.connect(local_folder / "db.json")
         
 
@@ -32,12 +30,9 @@ class App:
         cf = get_config()
         cf.env = env
 
-    def set_loffice_exe(self, value: str) -> None:
-        cf = get_config()
-        cf.loffice_exe = value
-
     def run_gui(self) -> None:
         app = QApplication(sys.argv)
         w = MainWindow(self.docmodels)
+        app.setWindowIcon(get_icon("writer.png"))
         w.show()
         sys.exit(app.exec())

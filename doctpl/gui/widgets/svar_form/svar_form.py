@@ -1,11 +1,11 @@
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from doctpl.gui.widgets.scomposite import SComposite
 from doctpl.gui.widgets.svar_form.svar_form_item import SVarFormItem
 from doctpl.gui.widgets.types import ValidationError
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy, QComboBox, QHBoxLayout, QSpacerItem
-from doctpl.gui.colors import Colors
 from .svar_form_item import SVarFormItem
-
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
 
 class SVarForm:
     def __init__(self, name: str, choices: list[SVarFormItem], label="", stretch=0) -> None:
@@ -15,7 +15,7 @@ class SVarForm:
         self.choices = [c.clone() for c in choices]
         self._current_item: Optional[SVarFormItem] = None
         self.map_choices: dict[str, SVarFormItem] = {}
-        self._model_name: Optional[str] = None
+        self._docmodel: Optional[DocModel] = None 
         for item in self.choices:
             self.map_choices[item.choice_value] = item
         super(SVarForm, self).__init__()
@@ -40,13 +40,13 @@ class SVarForm:
     def name(self) -> str:
         return self._name
 
-    def set_model_name(self, model_name: str) -> None:
-        self._model_name = model_name
+    def set_docmodel(self, docmodel: 'DocModel') -> None:
+        self._docmodel = docmodel
 
-    def get_model_name(self) -> str:
-        if self._model_name is None:
-            raise Exception("Model name was not set")
-        return self._model_name
+    def get_docmodel(self) -> 'DocModel':
+        if self._docmodel is None:
+            raise Exception("Docmodel was not set")
+        return self._docmodel
 
     def get_context(self) -> Any:
         data: dict = {

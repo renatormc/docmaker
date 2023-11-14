@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from doctpl.gui.widgets.scomposite import SComposite
 from doctpl.gui.widgets.widget import Widget
 from doctpl.gui.widgets.types import ValidationError
@@ -7,6 +7,8 @@ from PySide6.QtCore import QSize
 from doctpl.gui.helpers import get_icon
 from doctpl.gui.colors import Colors
 import copy
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
 
 
 class SArray:
@@ -37,13 +39,13 @@ class SArray:
     def name(self) -> str:
         return self._name
 
-    def set_model_name(self, model_name: str) -> None:
-        self._model_name = model_name
+    def set_docmodel(self, docmodel: 'DocModel') -> None:
+        self._docmodel = docmodel
 
-    def get_model_name(self) -> str:
-        if self._model_name is None:
-            raise Exception("Model name was not set")
-        return self._model_name
+    def get_docmodel(self) -> 'DocModel':
+        if self._docmodel is None:
+            raise Exception("Docmodel was not set")
+        return self._docmodel
 
     def show_total_items(self):
         self.lbl_total_items.setText(f"Total: {len(self.composites)}")

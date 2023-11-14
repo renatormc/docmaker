@@ -6,3 +6,4 @@ ValidatorType = Callable[[Any], None]
 ConverterType = Callable[[Any], Any]
 ContextType = dict[str, Any]
 EnvType = Literal['prod', 'dev']
+

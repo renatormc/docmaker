@@ -1,9 +1,11 @@
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox
-from doctpl.custom_types import ConverterType, FormError
+from doctpl.custom_types import ConverterType
 from doctpl.gui.widgets.helpers import apply_converter
 from doctpl.gui.widgets.label_error import LabelError
 from doctpl.gui.widgets.helpers import get_list
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
 
 
 class SComboBox:
@@ -18,7 +20,7 @@ class SComboBox:
         super(SComboBox, self).__init__()
         self._combo: Optional[QComboBox] = None
         self._lbl_error: Optional[LabelError] = None
-        self._model_name: Optional[str] = None
+        self._docmodel: Optional[DocModel] = None 
 
     @property
     def stretch(self) -> int:
@@ -44,13 +46,13 @@ class SComboBox:
     def label(self) -> str:
         return self._label
 
-    def set_model_name(self, model_name: str) -> None:
-        self._model_name = model_name
+    def set_docmodel(self, docmodel: 'DocModel') -> None:
+        self._docmodel = docmodel
 
-    def get_model_name(self) -> str:
-        if self._model_name is None:
-            raise Exception("Model name was not set")
-        return self._model_name
+    def get_docmodel(self) -> 'DocModel':
+        if self._docmodel is None:
+            raise Exception("Docmodel was not set")
+        return self._docmodel
 
     def get_context(self) -> Any:
         data = self.combo.currentData()
@@ -64,7 +66,7 @@ class SComboBox:
         w.setLayout(l)
         l.addWidget(QLabel(self.label))
         self._combo = QComboBox()
-        for item in get_list(self.choices, self.get_model_name()):
+        for item in get_list(self.choices, self.get_docmodel().lists_folder):
             self.combo.addItem(item["key"], item["data"])
         l.addWidget(self.combo)
         self._lbl_error = LabelError()

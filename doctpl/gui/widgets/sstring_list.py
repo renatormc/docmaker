@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from doctpl.gui.widgets.helpers import apply_converter
 from doctpl.gui.widgets.types import ValidationError
 
@@ -6,7 +6,8 @@ from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from doctpl.custom_types import ConverterType, ValidatorType
 from doctpl.gui.widgets.label_error import LabelError
-
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
 
 class SStringList:
 
@@ -23,7 +24,7 @@ class SStringList:
         self.default = default
         self.converter = converter
         self.separator = separator
-        self._model_name: Optional[str] = None
+        self._docmodel: Optional[DocModel] = None
         super(SStringList, self).__init__()
         self._w: Optional[QLineEdit] = None
         self._lbl_error: Optional[LabelError] = None
@@ -52,13 +53,13 @@ class SStringList:
     def name(self) -> str:
         return self._name
 
-    def set_model_name(self, model_name: str) -> None:
-        self._model_name = model_name
+    def set_docmodel(self, docmodel: 'DocModel') -> None:
+        self._docmodel = docmodel
 
-    def get_model_name(self) -> str:
-        if self._model_name is None:
-            raise Exception("Model name was not set")
-        return self._model_name
+    def get_docmodel(self) -> 'DocModel':
+        if self._docmodel is None:
+            raise Exception("Docmodel was not set")
+        return self._docmodel
 
     def get_context(self) -> Any:
         data = [item.strip() for item in  self.w.displayText().split(self.separator) if item.strip() != '']
