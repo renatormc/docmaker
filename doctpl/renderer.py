@@ -9,7 +9,7 @@ from doctpl.filters import filters
 import hashlib
 import config
 
-class RenderFiles:
+class RenderOutput:
     def __init__(self, doc_file: Path) -> None:
         self.doc_file = Path(doc_file).absolute()
         self.files_dir = self.gen_files_dir()
@@ -62,10 +62,10 @@ class RenderFiles:
             pass
 
 
-class Renderer:
+class OdtHandler:
 
     def __init__(self, model_dir: str | Path) -> None:
-        self._render_files: RenderFiles | None = None
+        self._render_files: RenderOutput | None = None
         self.model_dir = Path(model_dir)
         self._subdoc_counter = 0
         self._pic_counter = 0
@@ -97,7 +97,7 @@ class Renderer:
 
 
     @property
-    def render_files(self) -> RenderFiles:
+    def render_files(self) -> RenderOutput:
         if self._render_files is None:
             raise Exception("render_files not set")
         return self._render_files
@@ -123,7 +123,7 @@ class Renderer:
             f.write(result)
 
     def pre_render(self, template: str, doc_file: Path,  overwrite=False, **kwargs):
-        self._render_files = RenderFiles(doc_file)
+        self._render_files = RenderOutput(doc_file)
         self.render_files.init(overwrite=overwrite)
         self.render(template, doc_file, **kwargs)
         self.render_files.save()

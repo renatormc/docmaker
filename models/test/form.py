@@ -1,8 +1,8 @@
-from doctpl.gui.form import BaseForm
+from doctpl.gui.form import Form
 from doctpl.gui import widgets as wt
 
 
-class Form(BaseForm):
+class Form(Form):
     name = "Teste"
     widgets = [
         [

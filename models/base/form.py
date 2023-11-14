@@ -1,4 +1,4 @@
-from doctpl.gui.form import BaseForm
+from doctpl.gui.form import Form
 from doctpl.gui import widgets as wt
 from doctpl.gui.widgets.types import ValidationError
 from doctpl.converters import StringListConverter
@@ -14,7 +14,7 @@ def convert_pericia(value: str) -> dict:
         raise ValidationError("Valor incorreto")
 
         
-class Form(BaseForm):
+class Form(Form):
     name = "Base"
     widgets = [
         [

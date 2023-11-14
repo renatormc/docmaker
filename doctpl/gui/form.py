@@ -1,40 +1,36 @@
 from typing import Optional
-# from doctpl.custom_types import  ModelInfo
 from doctpl.gui.widgets.scomposite import SComposite
-from doctpl.gui.widgets.widget import WidgetMatrix
 from PySide6.QtWidgets import QFileDialog
 import json
 from pathlib import Path
 import repo
+from doctpl.docmodel import DocModel
 
+class Form(SComposite):
 
-class BaseForm(SComposite):
-    widgets: WidgetMatrix = []
-    name = "No name"
-    templates_dir = ""
-
-    def __init__(self):
-        super(BaseForm, self).__init__(self.widgets, model_name=self.name)
-        
+    def __init__(self, docmodel: DocModel):
+        self.docmodel = docmodel
+        super(Form, self).__init__(docmodel.widgets, model_name=docmodel.name)
 
     def save_last_context(self):
         data = self.serialize()
-        repo.save_last_context(self.name,  data)
+        repo.save_last_context(self.docmodel.name,  data)
 
     def load_last_context(self):
-        data = repo.get_last_context_by_model(self.name)
+        data = repo.get_last_context_by_model(self.docmodel.name)
         self.load(data)
 
     def save_to_file(self, file_: Optional[str] = None):
         data = self.serialize()
-        file_= file_ or QFileDialog.getSaveFileName(self, "Escolha o arquivo",  ".", "JSON (*.json)")[0]
+        file_ = file_ or QFileDialog.getSaveFileName(
+            self, "Escolha o arquivo",  ".", "JSON (*.json)")[0]
         if file_:
             with Path(file_).open("w", encoding="utf-8") as f:
                 f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
-
     def load_from_file(self, file_: Optional[str] = None) -> None:
-        file_ = file_ or QFileDialog.getOpenFileName(self, "Escolha o arquivo",  ".", "JSON (*.json)")[0]
+        file_ = file_ or QFileDialog.getOpenFileName(
+            self, "Escolha o arquivo",  ".", "JSON (*.json)")[0]
         if file_:
             path = Path(file_)
             if path.exists():
@@ -44,7 +40,6 @@ class BaseForm(SComposite):
 
     def pre_process(self, context: dict) -> dict:
         return context
-    
 
     # def load_data(self, data: dict) -> None:
     #     for key, w in self.widgets_map.items():

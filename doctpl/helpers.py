@@ -1,4 +1,4 @@
-from doctpl.gui.form import BaseForm
+from doctpl.gui.form import Form
 import importlib.util
 from pathlib import Path
 import subprocess
@@ -6,8 +6,8 @@ import config
 import os
 
 
-def inspect_models_folder(models_folder: Path) -> list[BaseForm]:
-    forms: list[BaseForm] = []
+def inspect_models_folder(models_folder: Path) -> list[Form]:
+    forms: list[Form] = []
     for entry in models_folder.iterdir():
         path = entry / "form.py"
         if path.exists():
@@ -15,7 +15,7 @@ def inspect_models_folder(models_folder: Path) -> list[BaseForm]:
                 entry.name, path.absolute())
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            loaded_class: BaseForm = getattr(module, "Form")
+            loaded_class: Form = getattr(module, "Form")
             loaded_class.templates_dir = entry / "templates"
             forms.append(loaded_class)
     return forms

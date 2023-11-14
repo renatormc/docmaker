@@ -1,9 +1,8 @@
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QMessageBox, QPushButton, QFileDialog
 from PySide6.QtCore import QSize
-from doctpl.gui.form import BaseForm
-from typing import Type
+from doctpl.gui.form import Form
 from pathlib import Path
-from doctpl.renderer import Renderer
+from doctpl.renderer import OdtHandler
 from doctpl.gui.helpers import spacer, get_icon
 from doctpl.helpers import open_writer, open_in_filemanager
 from doctpl.writer_handler import WriterHandler
@@ -12,23 +11,24 @@ from uuid import uuid4
 import shutil
 import traceback
 import repo
-from doctpl.custom_types import Context
+from doctpl.custom_types import ContextType
+from doctpl.docmodel import DocModel
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, forms: list[Type[BaseForm]]) -> None:
-        self.forms = {f.name: f for f in forms}
+    def __init__(self, docmodels: list[DocModel]) -> None:
+        self.docmodels = {m.name: m for m in docmodels}
         super(self.__class__, self).__init__()
         self.setup_ui()
         self.connections()
-        self.current_form: BaseForm | None = None
+        self.current_form: Form | None = None
         self.load_last()
 
 
-    def load_form(self, name: str, context: Context | None = None) -> None:
+    def load_form(self, name: str, context: ContextType | None = None) -> None:
         if self.current_form is not None:
             self.current_form.deleteLater()
-        self.current_form = self.forms[name]()
+        self.current_form = Form(self.docmodels[name])
         if context:
             self.current_form.load(context)
         else:
@@ -41,14 +41,13 @@ class MainWindow(QMainWindow):
         
         if last_context:
             try:
-                form = self.forms[last_context["model_name"]]
-                print(last_context["model_name"])
-                self.load_form(form.name, last_context["context"])
+                docmodel = self.docmodels[last_context["model_name"]]
+                self.load_form(docmodel.name, last_context["context"])
                 return
             except KeyError:
                 pass
         else:
-            name = [name for name in self.forms.keys()][0]
+            name = [name for name in self.docmodels.keys()][0]
             self.load_form(name)
         
     def setup_ui(self):
@@ -58,7 +57,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(w)
 
         self.cbx_form = QComboBox()
-        for name in self.forms.keys():
+        for name in self.docmodels.keys():
             self.cbx_form.addItem(name)
         self.main_layout.addWidget(self.cbx_form)
         self.lay_form = QVBoxLayout()
@@ -150,7 +149,7 @@ class MainWindow(QMainWindow):
         save_file = config.LOCAL_FOLDER / \
             "compiled.odt" if config.ENV == "dev" else self.choose_save_file()
         if save_file:
-            renderer = Renderer(self.current_form.templates_dir)
+            renderer = OdtHandler(self.current_form.templates_dir)
             try:
                 renderer.pre_render("main.odt", save_file,
                                     overwrite=True, **context)
@@ -184,7 +183,7 @@ class MainWindow(QMainWindow):
         repo.save_last_context_dev(context, True)
         self.current_form.save_last_context()
         path = config.TEMPDIR / f"{uuid4().hex}.odt"
-        renderer = Renderer(self.current_form.templates_dir)
+        renderer = OdtHandler(self.current_form.templates_dir)
         try:
             renderer.pre_render("main.odt", path, overwrite=True, **context)
             wh = WriterHandler()

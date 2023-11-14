@@ -163,3 +163,4 @@ cython_debug/
 test.py
 .python-version
 test.py
+.vscode

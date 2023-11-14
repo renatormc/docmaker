@@ -3,12 +3,12 @@ import config
 import json
 from datetime import datetime
 from typing import TypedDict
-from doctpl.custom_types import Context
+from doctpl.custom_types import ContextType
 
 db = TinyDB(config.LOCAL_FOLDER / "db.json")
 
 
-def save_last_context(model_name: str, context: Context) -> None:
+def save_last_context(model_name: str, context: ContextType) -> None:
     updated_at = datetime.now().timestamp()
     Record = Query()
     cond = (Record.id == "last_context") & (Record.model_name == model_name)
@@ -19,7 +19,7 @@ def save_last_context(model_name: str, context: Context) -> None:
             {'id': 'last_context', 'model_name': model_name, 'context': context, "updated_at": updated_at})
 
 
-def get_last_context_by_model(model_name: str) -> Context:
+def get_last_context_by_model(model_name: str) -> ContextType:
     Record = Query()
     cond = (Record.id == "last_context") & (Record.model_name == model_name)
     res = db.search(cond)
@@ -31,7 +31,7 @@ def get_last_context_by_model(model_name: str) -> Context:
 class LastContext(TypedDict):
     id: str
     model_name: str
-    context: Context
+    context: ContextType
 
 
 def get_last_context() -> LastContext | None:
@@ -43,13 +43,13 @@ def get_last_context() -> LastContext | None:
     return regs[-1]
 
 
-def save_last_context_dev(context: Context, full: bool) -> None:
+def save_last_context_dev(context: ContextType, full: bool) -> None:
     name = "last_context_dev_full.json" if full else "last_context_dev_filled.json"
     with (config.LOCAL_FOLDER / name).open("w", encoding="utf8") as f:
         f.write(json.dumps(context, ensure_ascii=False, indent=4))
 
 
-def get_last_filled_context(full: bool) -> Context:
+def get_last_filled_context(full: bool) -> ContextType:
     name = "last_context_dev_full.json" if full else "last_context_dev_filled.json"
     try:
         with (config.LOCAL_FOLDER / name).open("r", encoding="utf8") as f:

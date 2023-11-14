@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any
 from pathlib import Path
 from PIL import Image as PilImage
 if TYPE_CHECKING:
-    from .renderer import Renderer
+    from .renderer import OdtHandler
 
 
 def totag(tag: str, *args) -> str:
@@ -11,7 +11,7 @@ def totag(tag: str, *args) -> str:
 
 
 class Image:
-    def __init__(self, renderer: 'Renderer') -> None:
+    def __init__(self, renderer: 'OdtHandler') -> None:
         self.renderer = renderer
 
     def __call__(self, path: Path | str | None, w: int | None = None, h: int | None = None) -> Any:
@@ -31,7 +31,7 @@ class Image:
 
 
 class SubDoc:
-    def __init__(self, renderer: 'Renderer') -> None:
+    def __init__(self, renderer: 'OdtHandler') -> None:
         self.renderer = renderer
 
     def __call__(self, template: str,  **kwds: Any) -> Any:
