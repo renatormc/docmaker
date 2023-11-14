@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
         save_file = cf.local_folder / \
             "compiled.odt" if cf.env == "dev" else self.choose_save_file()
         if save_file:
-            renderer = OdtHandler(self.current_form.templates_dir)
+            renderer = OdtHandler(self.current_form.docmodel.templates_folder)
             try:
                 renderer.pre_render("main.odt", save_file,
                                     overwrite=True, **context)
@@ -171,7 +171,7 @@ class MainWindow(QMainWindow):
                     pass
 
     def open_templates(self):
-        open_in_filemanager(self.current_form.docmodel.templates_dir)
+        open_in_filemanager(self.current_form.docmodel.templates_folder)
 
     def render_to_writer(self):
         context, errors = self.current_form.get_context()
@@ -183,8 +183,8 @@ class MainWindow(QMainWindow):
         context = self.current_form.pre_process(context)
         repo.save_last_context_dev(context, True)
         self.current_form.save_last_context()
-        path = config.TEMPDIR / f"{uuid4().hex}.odt"
-        renderer = OdtHandler(self.current_form.templates_dir)
+        path = get_config().tempdir / f"{uuid4().hex}.odt"
+        renderer = OdtHandler(self.current_form.docmodel.templates_folder)
         try:
             renderer.pre_render("main.odt", path, overwrite=True, **context)
             wh = WriterHandler()

@@ -7,7 +7,7 @@ from .render_info import RenderInfo, PicInfo
 import json
 from doctpl.filters import filters
 import hashlib
-import config
+from doctpl.config import get_config
 
 class RenderOutput:
     def __init__(self, doc_file: Path) -> None:
@@ -19,7 +19,7 @@ class RenderOutput:
         hash = hashlib.md5()
         hash.update(str(self.doc_file).encode('utf-8'))
         hashed_string = hash.hexdigest()
-        return config.TEMPDIR / hashed_string
+        return get_config().tempdir / hashed_string
 
     def init(self, overwrite=False) -> None:
         if overwrite:

@@ -1,10 +1,10 @@
-import config
+from doctpl.config import LIBDIR
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMessageBox, QWidget, QSpacerItem, QSizePolicy
 from typing import Literal
 
 def get_icon(name):
-    return QIcon(str(config.APPDIR / "doctpl/gui/assets/images" / name)) 
+    return QIcon(str(LIBDIR / "gui/assets/images" / name)) 
 
 
 def ask_confirmation(parent: QWidget, title: str, message: str) -> bool:

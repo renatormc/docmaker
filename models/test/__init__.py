@@ -1,1 +1,1 @@
-from .form import Form
+from .model import test_model

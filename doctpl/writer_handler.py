@@ -1,9 +1,8 @@
 import os
 import subprocess
-import config
 from pathlib import Path
-from datetime import datetime
 import json
+from doctpl.config import get_config
 
 class WriterHandler:
     def __init__(self) -> None:
@@ -13,7 +12,7 @@ class WriterHandler:
         if os.name == "nt":
             url = url.replace("\"", "\\\"")
             text = f"vnd.sun.star.script:{url}?language=Python&location=user"
-            res = subprocess.check_output([config.LOFFICE_EXE, text])
+            res = subprocess.check_output([get_config().loffice_exe, text])
         else:
             cmd = f"soffice 'vnd.sun.star.script:{url}?language=Python&location=user'"
             os.system(cmd)

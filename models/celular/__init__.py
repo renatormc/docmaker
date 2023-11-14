@@ -1,1 +1,1 @@
-from .form import celular_model
+from .model import celular_model

@@ -2,7 +2,7 @@ from doctpl.gui import widgets as wt
 from doctpl.gui.widgets.types import ValidationError
 from doctpl.converters import StringListConverter
 from doctpl import DocModel
-import config
+from settings import APPDIR
 
 def convert_pericia(value: str) -> dict:
     ret = {}
@@ -15,7 +15,7 @@ def convert_pericia(value: str) -> dict:
         raise ValidationError("Valor incorreto")
 
 
-celular_model = DocModel("Celular", templates_folder=config.APPDIR / "models/celular/templates")
+celular_model = DocModel("Celular", templates_folder=APPDIR / "models/celular/templates")
 
 celular_model.widgets = [
     [

@@ -2,7 +2,7 @@ from doctpl.gui.form import Form
 import importlib.util
 from pathlib import Path
 import subprocess
-import config
+from doctpl.config import get_config
 import os
 
 
@@ -50,7 +50,7 @@ def add_to_path(folder_path):
 
 
 def open_writer(path: Path | None = None) -> None:
-    args = [config.LOFFICE_EXE, "--writer"]
+    args = [get_config().loffice_exe, "--writer"]
     if path:
         args.append(path)
     subprocess.Popen(args)
