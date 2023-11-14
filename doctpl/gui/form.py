@@ -3,7 +3,7 @@ from doctpl.gui.widgets.scomposite import SComposite
 from PySide6.QtWidgets import QFileDialog
 import json
 from pathlib import Path
-import repo
+import doctpl.repo as repo
 from doctpl.docmodel import DocModel
 
 class Form(SComposite):

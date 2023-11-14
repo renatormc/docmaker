@@ -11,7 +11,7 @@ class DocModel:
         self.filters: dict[str, Callable] = {}
         self.global_funcs: dict[str, Callable] = {}
         self._pre_process: Callable[[ContextType], ContextType] | None = None
-        self._templates_folder: Path | None = Path(templates_folder) if templates_folder else None
+        self._templates_dir: Path | None = Path(templates_folder) if templates_folder else None
 
     @property
     def widgets(self) -> WidgetMatrix:
@@ -24,14 +24,14 @@ class DocModel:
         self._widgets = value
 
     @property
-    def templates_folder(self) -> Path:
-        if self._templates_folder is None:
+    def templates_dir(self) -> Path:
+        if self._templates_dir is None:
             raise Exception("templates_folder was not set")
-        return self._templates_folder
+        return self._templates_dir
 
-    @templates_folder.setter
-    def templates_folder(self, value: Path | str) -> None:
-        self._templates_folder = value
+    @templates_dir.setter
+    def templates_dir(self, value: Path | str) -> None:
+        self._templates_dir = Path(value)
 
     def filter(self, name: str):
         def decorator(f):
@@ -45,7 +45,7 @@ class DocModel:
             return f
         return decorator
 
-    def pre_process(self, context: ContextType) -> ContextType:
+    def pre_process(self, context: ContextType):
         def decorator(f: Callable[[ContextType], ContextType]):
             self._pre_process = f
             return f

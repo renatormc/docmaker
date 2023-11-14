@@ -6,11 +6,11 @@ from doctpl.renderer import OdtHandler
 from doctpl.gui.helpers import spacer, get_icon
 from doctpl.helpers import open_writer, open_in_filemanager
 from doctpl.writer_handler import WriterHandler
-import config
+from doctpl.config import get_config
 from uuid import uuid4
 import shutil
 import traceback
-import repo
+import doctpl.repo as repo
 from doctpl.custom_types import ContextType
 from doctpl.docmodel import DocModel
 
@@ -146,8 +146,9 @@ class MainWindow(QMainWindow):
         self.current_form.save_last_context()
 
         repo.save_last_context_dev(context, True)
-        save_file = config.LOCAL_FOLDER / \
-            "compiled.odt" if config.ENV == "dev" else self.choose_save_file()
+        cf = get_config()
+        save_file = cf.local_folder / \
+            "compiled.odt" if cf.env == "dev" else self.choose_save_file()
         if save_file:
             renderer = OdtHandler(self.current_form.templates_dir)
             try:
@@ -170,7 +171,7 @@ class MainWindow(QMainWindow):
                     pass
 
     def open_templates(self):
-        open_in_filemanager(self.current_form.templates_dir)
+        open_in_filemanager(self.current_form.docmodel.templates_dir)
 
     def render_to_writer(self):
         context, errors = self.current_form.get_context()
