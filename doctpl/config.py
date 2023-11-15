@@ -8,26 +8,18 @@ LIBDIR = Path(os.path.dirname(os.path.realpath(__file__)))
 class Config:
     def __init__(self) -> None:
         self.env: EnvType = "prod"
-        self._local_folder: Path = Path("./local")
-        self._tempdir = self.local_folder / "tmp"
-        self.loffice_exe = "soffice"
-
-    @property
-    def local_folder(self) -> Path:
-        return self._local_folder
-    
-    @local_folder.setter
-    def local_folder(self, value: str | Path) -> None:
-        self._local_folder = Path(value)
-        self._tempdir = self._local_folder / "tmp"
+        aux = os.getenv("DOCTPL_LOCAL_FOLDER")
+        self.local_folder = Path(aux) if aux else Path.home() / ".doctpl"
         try:
-            self._tempdir.mkdir()
+            self.local_folder.mkdir(parents=True)
         except FileExistsError:
             pass
-
-    @property
-    def tempdir(self) -> Path:
-        return self._tempdir
+        self.tempdir = self.local_folder / "tmp"
+        try:
+            self.tempdir.mkdir()
+        except FileExistsError:
+            pass
+        self.loffice_exe = "soffice"
 
 
 _config = Config()

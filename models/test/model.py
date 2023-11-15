@@ -11,7 +11,16 @@ test_model = DocModel("Test",
 test_model.widgets = [
     [
         wt.SText("names", label="Names", converter=lambda x: x.split(",")),
+        wt.SFileChooser("myimage", label="Imagem")
     ],
+    [
+        wt.SArray("people", [
+            [
+                wt.SText("name", label="Name"),
+                wt.SText("profession", label="Profession"),
+            ]
+        ], "People")
+    ]
 ]
 
 

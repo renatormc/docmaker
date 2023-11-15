@@ -85,5 +85,17 @@ app.add_docmodel(test_model)
 app.run_gui()  
 ```
 
+# .env
 
+```
+ENV=dev
+DOCTPL_LOCAL_FOLDER=/path/to/.local
+```
 
+# Link macro
+
+If you are gonna use LibreOffice you will need to make use of some macros, so you have to install the extension APSO and execute the command below to link the macros inside libreoffice.
+
+```
+python -m doctpl link-macro
+```

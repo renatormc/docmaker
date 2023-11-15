@@ -2,7 +2,8 @@ from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QC
 from PySide6.QtCore import QSize
 from doctpl.gui.form import Form
 from pathlib import Path
-from doctpl.doc_handler.docx_handler import DocxHandler
+# from doctpl.doc_handler.odt_handler.writer_handler import WriterHandler
+from doctpl.doc_handler import get_handler
 from doctpl.gui.helpers import spacer, get_icon
 from doctpl.config import get_config
 import traceback
@@ -11,7 +12,7 @@ from doctpl.custom_types import ContextType
 from doctpl.docmodel import DocModel
 from doctpl.helpers import  open_in_filemanager, open_file
 from .context_dialog import ContextDialog
-import os
+from uuid import uuid4
 
 class MainWindow(QMainWindow):
     def __init__(self, docmodels: list[DocModel]) -> None:
@@ -59,6 +60,7 @@ class MainWindow(QMainWindow):
             self.load_form(name)
         
     def setup_ui(self):
+        self.setWindowIcon(get_icon("writer.png"))
         self.main_layout = QVBoxLayout()
         w = QWidget()
         w.setLayout(self.main_layout)
@@ -102,6 +104,13 @@ class MainWindow(QMainWindow):
         self.btn_context.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_context)
 
+        self.btn_insert = QPushButton("Inserir")
+        self.btn_insert.setEnabled(False)
+        self.btn_insert.setIcon(get_icon("paste.png"))
+        self.btn_insert.setIconSize(QSize(30, 30))
+        self.btn_insert.setMinimumHeight(45)
+        self.btn_insert.setMinimumWidth(120)
+        self.lay_buttons.addWidget(self.btn_insert)
 
         self.btn_render_file = QPushButton("Renderizar arquivo")
         self.btn_render_file.setIcon(get_icon("file.png"))
@@ -109,6 +118,8 @@ class MainWindow(QMainWindow):
         self.btn_render_file.setMinimumHeight(45)
         self.btn_render_file.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_render_file)
+
+        
 
         self.main_layout.addLayout(self.lay_buttons)
 
@@ -118,6 +129,7 @@ class MainWindow(QMainWindow):
         self.btn_clear.clicked.connect(self.clear_form)
         self.btn_open_templates.clicked.connect(self.open_templates)
         self.btn_context.clicked.connect(self.show_context)
+        self.btn_insert.clicked.connect(self.insert_on_editor)
   
     def clear_form(self):
         self.current_form.clear_content()
@@ -144,9 +156,9 @@ class MainWindow(QMainWindow):
             return False
         if self.current_form is None:
             return False
-        hd = DocxHandler(self.current_form.docmodel)
+        hd = get_handler(self.current_form.docmodel)
         try:
-            hd.render("main.docx", context, save_file)
+            hd.render(self.current_form.docmodel.main_template, context, save_file)
         except Exception as e:
             traceback.print_exc()
             QMessageBox.warning(self, "Erro", str(e))
@@ -156,13 +168,31 @@ class MainWindow(QMainWindow):
 
     def render_file(self):
         cf = get_config()
-        save_file = cf.local_folder /  "compiled.docx" if cf.env == "dev" else self.choose_save_file()
+        save_file = cf.local_folder /  f"compiled.{self.current_form.docmodel.format}" if cf.env == "dev" else self.choose_save_file()
         if save_file:
             res = self.render_doc(save_file)
             if res:
                 open_file(save_file)
-            
+                self.close()
+                # if self.current_form.docmodel.format == "odt":
+                #     msg_box = QMessageBox()
+                #     msg_box.setWindowTitle("Pós processamento")
+                #     msg_box.setText("Executar pós processamento?")
+                #     msg_box.setIcon(QMessageBox.Icon.Question)
+                #     msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                #     result = msg_box.exec()
+                #     if result == QMessageBox.StandardButton.Yes:
+                #         wh = WriterHandler()
+                #         wh.run_macro("pos_process")
 
+    def insert_on_editor(self):
+        cf = get_config()
+        save_file = cf.tempdir /  f"{uuid4().hex}.{self.current_form.docmodel.format}"
+        res = self.render_doc(save_file)
+        if res:
+            pass
+                        
+            
     def gen_context(self) -> ContextType | None:
         context, errors = self.current_form.get_context()
         if errors:

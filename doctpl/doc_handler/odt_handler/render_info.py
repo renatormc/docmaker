@@ -7,4 +7,5 @@ class PicInfo(BaseModel):
     h: int
 
 class RenderInfo(BaseModel):
+    doc_file: str
     pics: dict[str, PicInfo]

@@ -117,7 +117,7 @@ class SArray:
             index = n + i
             widgets = copy.deepcopy(self.widgets)
             # composite = SComposite(widgets, color=Colors.item_array_widget_background, is_array_child=True, index=index)
-            composite = SComposite(widgets, is_array_child=True, index=index, color="white", model_name=self.get_model_name())
+            composite = SComposite(widgets, is_array_child=True, index=index, color="white", docmodel=self.get_docmodel())
             composite.removeRequested.connect(self.remove_by_index)
             composite.cloneRequested.connect(self.clone_by_index)
             self.lay_composites.addWidget(composite)

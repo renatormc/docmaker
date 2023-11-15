@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Any
 from pathlib import Path
 from PIL import Image as PilImage
+from doctpl.custom_types import ContextType
 if TYPE_CHECKING:
-    from .renderer import OdtHandler
+    from doctpl.doc_handler.odt_handler import OdtHandler
 
 
 def totag(tag: str, *args) -> str:
@@ -34,8 +35,6 @@ class SubDoc:
     def __init__(self, renderer: 'OdtHandler') -> None:
         self.renderer = renderer
 
-    def __call__(self, template: str,  **kwds: Any) -> Any:
-        name = self.renderer.gen_subdoc_name()
-        dest = self.renderer.render_files.subdocs_dir / name
-        self.renderer.render(template, dest, **kwds)
+    def __call__(self, template: str,  **context: ContextType) -> Any:
+        name = self.renderer.render_subdoc(template, context)
         return totag("subdoc", name)

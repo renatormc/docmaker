@@ -17,7 +17,7 @@ class RenderOutput:
     def __init__(self, doc_file: Path) -> None:
         self.doc_file = Path(doc_file).absolute()
         self.files_dir = self.gen_files_dir()
-        self.render_info = RenderInfo(pics={})
+        self.render_info = RenderInfo(pics={}, doc_file=str(self.doc_file))
 
     def gen_files_dir(self) -> Path:
         hash = hashlib.md5()
@@ -124,9 +124,16 @@ class OdtHandler:
         with dest.open('wb') as f:
             f.write(result)
 
+    def render_subdoc(self, template: str, context: ContextType) -> str:
+        name = self.gen_subdoc_name()
+        dest = self.render_files.subdocs_dir / name
+        self.render_odt(template, dest, context)
+        return name
+
+
     def render(self, template: str, context: ContextType, dest_file: Union[Path, str]) -> Optional[Path]:
         self._render_files = RenderOutput(Path(dest_file))
         self.render_files.init(overwrite=True)
-        self.render_odt(template, dest_file, **context)
+        self.render_odt(template, dest_file, context)
         self.render_files.save()
         return self.render_files.doc_file

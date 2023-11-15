@@ -45,7 +45,7 @@ def open_in_filemanager(path: Path) -> None:
     if os.name == "nt":
         subprocess.Popen(['explorer.exe', str(path)])
     else:
-        raise Exception("Not implemented for linux yet")
+        subprocess.run(['xdg-open', str(path)])
     
 def open_file(path: Path) -> None:
     if os.name == "nt":
