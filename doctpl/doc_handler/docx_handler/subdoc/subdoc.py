@@ -4,7 +4,7 @@ from docxtpl.subdoc import Subdoc
 from docxtpl import DocxTemplate
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from doctpl.doc_handler.docx_handler import DocxHandler
+    from doctpl.doc_handler.docx_handler.docx_handler import DocxHandler
 
 def add_subdoc_from_template(tpl: DocxTemplate, template: str|Path, context: Any) -> Subdoc:
     path = Path(template)

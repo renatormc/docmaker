@@ -6,6 +6,7 @@ from docx.shared import Mm
 from doctpl.doc_handler.docx_handler.subdoc_html import SubdocHtmlFunction
 from doctpl.doc_handler.docx_handler.subdoc import SubdocFunction
 from doctpl.docmodel import DocModel
+from doctpl.custom_types import ContextType
 
 class SInlineImage:
     def __init__(self, tpl):
@@ -22,7 +23,7 @@ class DocxHandler:
     def __init__(self, docmodel: DocModel):
         self.docmodel = docmodel
         self.jinja_env = make_jinja_env(docmodel.filters, docmodel.global_funcs, docmodel.templates_folder)
-        self.context = None
+        self.context: ContextType | None = None
         self.pos_subdocs: list[Subdoc]  = []
 
     def prepare_jinja_env(self, tpl: DocxTemplate):
@@ -32,17 +33,8 @@ class DocxHandler:
         self.jinja_env.globals['image'] = SInlineImage(tpl)
         return self.jinja_env
 
-    # def render_temp(self, template, context):
-    #     path = self.templates_folder / template
-    #     if path.exists():
-    #         tpl = DocxTemplate(str(path))
-    #         jinja_env = self.make_jinja_env(tpl)
-    #         tpl.render(context, jinja_env)
-    #         tempfile = self.TEMPFOLDER / f"{uuid4()}.docx"
-    #         tpl.save(tempfile)
-    #         return tempfile
 
-    def render(self, template: str, context, dest_file: Union[Path, str]) -> Optional[Path]:
+    def render(self, template: str, context: ContextType, dest_file: Union[Path, str]) -> Optional[Path]:
         self.context = context
         dest_file = Path(dest_file)
         path = self.docmodel.templates_folder / template

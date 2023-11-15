@@ -22,6 +22,9 @@ tinydb-serialization = "^2.1.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.6.1"
+types-six = "^1.16.21.9"
+types-requests = "^2.31.0.10"
+types-beautifulsoup4 = "^4.12.0.7"
 
 [build-system]
 requires = ["poetry-core"]

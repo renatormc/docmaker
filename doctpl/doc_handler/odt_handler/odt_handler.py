@@ -2,12 +2,16 @@ from . import secretary as sct
 from pathlib import Path
 from . import globals as gl
 import shutil
-from typing import Callable
+from typing import Callable, TYPE_CHECKING, Union, Optional
 from .render_info import RenderInfo, PicInfo
 import json
-from doctpl.filters import filters
+from .filters import filters
 import hashlib
 from doctpl.config import get_config
+from doctpl.custom_types import ContextType
+if TYPE_CHECKING:
+    from doctpl.docmodel import DocModel
+
 
 class RenderOutput:
     def __init__(self, doc_file: Path) -> None:
@@ -36,7 +40,7 @@ class RenderOutput:
     @property
     def subdocs_dir(self) -> Path:
         return self.files_dir / "subdocs"
-    
+
     @property
     def render_info_file(self) -> Path:
         return self.files_dir / "info.json"
@@ -64,14 +68,13 @@ class RenderOutput:
 
 class OdtHandler:
 
-    def __init__(self, model_dir: str | Path) -> None:
+    def __init__(self, docmodel: 'DocModel') -> None:
         self._render_files: RenderOutput | None = None
-        self.model_dir = Path(model_dir)
+        self.docmodel = docmodel
         self._subdoc_counter = 0
         self._pic_counter = 0
         self.filters: dict[str, Callable] = {}
         self.globals: dict[str, Callable] = {}
-    
 
     def new_engine(self) -> sct.Renderer:
         engine = sct.Renderer()
@@ -95,7 +98,6 @@ class OdtHandler:
         self.render_files.render_info.pics[str(self._pic_counter)] = p
         return p
 
-
     @property
     def render_files(self) -> RenderOutput:
         if self._render_files is None:
@@ -114,16 +116,17 @@ class OdtHandler:
             return f
         return decorator
 
-    def render(self, template: str, dest: str | Path, **kwargs):
+    def render_odt(self, template: str, dest: str | Path, context: ContextType):
         dest = Path(dest)
-        tpl = self.model_dir / template
+        tpl = self.docmodel.templates_folder / template
         engine = self.new_engine()
-        result = engine.render(tpl, **kwargs)
+        result = engine.render(tpl, **context)
         with dest.open('wb') as f:
             f.write(result)
 
-    def pre_render(self, template: str, doc_file: Path,  overwrite=False, **kwargs):
-        self._render_files = RenderOutput(doc_file)
-        self.render_files.init(overwrite=overwrite)
-        self.render(template, doc_file, **kwargs)
+    def render(self, template: str, context: ContextType, dest_file: Union[Path, str]) -> Optional[Path]:
+        self._render_files = RenderOutput(Path(dest_file))
+        self.render_files.init(overwrite=True)
+        self.render_odt(template, dest_file, **context)
         self.render_files.save()
+        return self.render_files.doc_file

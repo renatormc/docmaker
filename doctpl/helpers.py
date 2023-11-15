@@ -37,7 +37,7 @@ def add_to_path(folder_path):
 def open_writer(path: Path | None = None) -> None:
     args = [get_config().loffice_exe, "--writer"]
     if path:
-        args.append(path)
+        args.append(str(path))
     subprocess.Popen(args)
 
 
@@ -46,6 +46,12 @@ def open_in_filemanager(path: Path) -> None:
         subprocess.Popen(['explorer.exe', str(path)])
     else:
         raise Exception("Not implemented for linux yet")
+    
+def open_file(path: Path) -> None:
+    if os.name == "nt":
+        os.startfile(path) #type: ignore
+    else:
+        subprocess.run(['xdg-open', str(path)])
 
 
 def read_json_file(path: Path | str) -> Any:

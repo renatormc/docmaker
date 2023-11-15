@@ -3,8 +3,10 @@ from doctpl import DocModel
 from settings import APPDIR
 
 
-test_model = DocModel("Test", templates_folder=APPDIR /
-                      "models/test/templates")
+test_model = DocModel("Test",
+                      templates_folder=APPDIR / "models/test/templates",
+                      format="odt"
+                      )
 
 test_model.widgets = [
     [

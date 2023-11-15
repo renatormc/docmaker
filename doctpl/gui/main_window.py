@@ -2,14 +2,14 @@ from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QC
 from PySide6.QtCore import QSize
 from doctpl.gui.form import Form
 from pathlib import Path
-from doctpl.doc_handler import DocxHandler
+from doctpl.doc_handler.docx_handler import DocxHandler
 from doctpl.gui.helpers import spacer, get_icon
 from doctpl.config import get_config
 import traceback
 import doctpl.repo as repo
 from doctpl.custom_types import ContextType
 from doctpl.docmodel import DocModel
-from doctpl.helpers import  open_in_filemanager
+from doctpl.helpers import  open_in_filemanager, open_file
 from .context_dialog import ContextDialog
 import os
 
@@ -19,13 +19,23 @@ class MainWindow(QMainWindow):
         super(self.__class__, self).__init__()
         self.setup_ui()
         self.connections()
-        self.current_form: Form | None = None
+        self._current_form: Form | None = None
         self.load_last()
+
+    @property
+    def current_form(self) -> Form:
+        if self._current_form is None:
+            raise Exception("current_form was not set")
+        return self._current_form
+        
+    @current_form.setter
+    def current_form(self, value: Form) -> None:
+        self._current_form = value
 
 
     def load_form(self, name: str, context: ContextType | None = None) -> None:
-        if self.current_form is not None:
-            self.current_form.deleteLater()
+        if self._current_form is not None:
+            self._current_form.deleteLater()
         self.current_form = Form(self.docmodels[name])
         if context:
             self.current_form.load(context)
@@ -128,27 +138,29 @@ class MainWindow(QMainWindow):
     def open_templates(self):
         open_in_filemanager(self.current_form.docmodel.templates_folder)
 
-    def render(self, save_file: Path) -> bool:
+    def render_doc(self, save_file: Path) -> bool:
         context = self.gen_context()
         if context is None:
+            return False
+        if self.current_form is None:
             return False
         hd = DocxHandler(self.current_form.docmodel)
         try:
             hd.render("main.docx", context, save_file)
-            return True
         except Exception as e:
             traceback.print_exc()
             QMessageBox.warning(self, "Erro", str(e))
             return False
+        return True
 
 
     def render_file(self):
         cf = get_config()
         save_file = cf.local_folder /  "compiled.docx" if cf.env == "dev" else self.choose_save_file()
         if save_file:
-            res = self.render(save_file)
+            res = self.render_doc(save_file)
             if res:
-                os.startfile(save_file)
+                open_file(save_file)
             
 
     def gen_context(self) -> ContextType | None:

@@ -10,6 +10,7 @@ class Config:
         self.env: EnvType = "prod"
         self._local_folder: Path = Path("./local")
         self._tempdir = self.local_folder / "tmp"
+        self.loffice_exe = "soffice"
 
     @property
     def local_folder(self) -> Path:

@@ -4,8 +4,9 @@ from docxtpl import DocxTemplate, Subdoc
 import jinja2
 from .elment_parses import parse_element
 
+
 if TYPE_CHECKING:
-    from doctpl.doc_handler import DocxHandler
+    from doctpl.doc_handler.docx_handler import DocxHandler
 
 
 class SubdocDocxFunction:
