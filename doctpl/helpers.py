@@ -49,7 +49,8 @@ def open_in_filemanager(path: Path) -> None:
     
 def open_file(path: Path) -> None:
     if os.name == "nt":
-        os.startfile(path) #type: ignore
+        subprocess.run([f"{os.getenv('ProgramFiles')}\\ONLYOFFICE\\DesktopEditors\\DesktopEditors", "--ascdesktop-support-debug-info", str(path)])
+        # os.startfile(path) #type: ignore
     else:
         subprocess.run(['xdg-open', str(path)])
 

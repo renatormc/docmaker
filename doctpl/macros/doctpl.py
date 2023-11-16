@@ -118,6 +118,7 @@ class Helper:
         actions = {
             "subdoc": [],
             "image": []
+            
         }
         for i in range(0, selsFound.getCount()):
             selFound = selsFound.getByIndex(i)

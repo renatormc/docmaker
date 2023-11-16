@@ -44,6 +44,10 @@ class MainWindow(QMainWindow):
             self.current_form.load_last_context()
         self.lay_form.addWidget(self.current_form)
         self.cbx_form.setCurrentText(name)
+        if self.current_form.docmodel.format == "odt":
+            self.btn_insert.setEnabled(True)
+        else:
+            self.btn_insert.setEnabled(False)
 
     def load_last(self):
         last_context = repo.get_last_context()
@@ -118,8 +122,6 @@ class MainWindow(QMainWindow):
         self.btn_render_file.setMinimumHeight(45)
         self.btn_render_file.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_render_file)
-
-        
 
         self.main_layout.addLayout(self.lay_buttons)
 
