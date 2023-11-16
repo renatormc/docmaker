@@ -87,12 +87,20 @@ class SComposite(QWidget):
         if self.color:
             self.setStyleSheet(f"background-color: {self.color}; border-color: {self.color};")
         
+    def get_field_value(self, field: str):
+        try:
+            w = self.widgets_map[field]
+            return w.get_context()
+        except KeyError:
+            return None
 
     def get_context(self) -> Tuple[dict, FormError]:
         context = {}
         errors: FormError = {}
         for row in self.widgets:
             for item in row:
+                if not item.name:
+                    continue
                 message = ""
                 try:
                     context[item.name] = item.get_context()

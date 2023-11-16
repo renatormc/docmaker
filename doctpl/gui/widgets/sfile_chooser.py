@@ -16,17 +16,17 @@ class SFileChooser:
     def __init__(
             self, name: str, required=False, label="",
             placeholder="", validators: list[ValidatorType] = [],
-            stretch=0, default="", converter: Optional[ConverterType] = None, type:Literal['file', 'dir']='file', default_dir=".") -> None:
+            stretch=0, default: str | Path = "", converter: Optional[ConverterType] = None, type: Literal['file', 'dir'] = 'file', default_dir=".") -> None:
         self.required = required
         self.placeholder = placeholder
         self._name = name
         self.validators = validators
         self._label = label or self.name
         self._stretch = stretch
-        self.default = default
+        self.default = Path(default)
         self.converter = converter
         self.default_dir = default_dir
-        self._docmodel: Optional[DocModel] = None 
+        self._docmodel: Optional[DocModel] = None
         self.type: Literal['file', 'dir'] = type
         super(SFileChooser, self).__init__()
         self._w: Optional[QLineEdit] = None
@@ -114,16 +114,18 @@ class SFileChooser:
         self.w.setText(value)
 
     def clear_content(self) -> None:
-        self.w.setText(self.default)
+        self.w.setText(str(self.default))
 
     def choose_dir(self):
         if self.type == 'file':
-            file_, ok = QFileDialog.getOpenFileName(self.w, "Escolher arquivo", self.default_dir)
+            file_, ok = QFileDialog.getOpenFileName(
+                self.w, "Escolher arquivo", self.default_dir)
             if ok:
                 path = Path(file_)
                 self.w.setText(str(path))
         elif self.type == 'dir':
-            dir_ = QFileDialog.getExistingDirectory(self.w, "Escolher diretório", self.default_dir)
+            dir_ = QFileDialog.getExistingDirectory(
+                self.w, "Escolher diretório", self.default_dir)
             if dir_:
                 path = Path(dir_)
                 self.w.setText(str(path))

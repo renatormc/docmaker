@@ -1,7 +1,9 @@
-from typing import Callable, Literal
+from typing import Callable, TYPE_CHECKING
 from doctpl.gui.widgets.widget import WidgetMatrix
 from doctpl.custom_types import ContextType, FormatType
 from pathlib import Path
+if TYPE_CHECKING:
+    from doctpl.gui.form import Form
 
 
 class DocModel:
@@ -22,6 +24,7 @@ class DocModel:
             lists_folder) if lists_folder else None
         self.format: FormatType = format
         self._main_template = main_template
+        self.current_form: 'Form' | None = None
 
     @property
     def widgets(self) -> WidgetMatrix:
@@ -54,7 +57,7 @@ class DocModel:
         self._templates_folder = Path(value)
 
     @property
-    def main_template(self) -> FormatType:
+    def main_template(self) -> str:
         if self._main_template:
             return self._main_template
         return "main.odt" if self.format == "odt" else "main.docx"
@@ -85,3 +88,12 @@ class DocModel:
         if self._pre_process is not None:
             return self._pre_process(context)
         return context
+    
+    def load_data(self, data: ContextType) -> None:
+        if self.current_form:
+            self.current_form.load(data)
+
+    def get_field_value(self, field: str):
+        if self.current_form:
+            return self.current_form.get_field_value(field)
+        return None

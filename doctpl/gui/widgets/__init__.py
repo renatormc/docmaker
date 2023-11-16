@@ -10,6 +10,7 @@ from .svar_form import SVarForm
 from .sfloat import SFloat
 from .sfile_chooser import SFileChooser
 from .sstring_list import SStringList
+from .sbutton import SButton
 
 
 if TYPE_CHECKING:
@@ -26,5 +27,6 @@ __widgets__: list[Type['Widget']] = [
     SVarForm,
     SFloat,
     SFileChooser,
-    SStringList
+    SStringList,
+    SButton
 ]

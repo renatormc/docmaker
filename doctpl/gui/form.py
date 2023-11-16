@@ -12,6 +12,7 @@ class Form(SComposite):
 
     def __init__(self, docmodel: DocModel):
         self.docmodel = docmodel
+        self.docmodel.current_form = self
         super(Form, self).__init__(docmodel.widgets, docmodel=docmodel)
 
     def save_last_context(self):
@@ -28,8 +29,7 @@ class Form(SComposite):
             self, "Escolha o arquivo",  ".", "JSON (*.json)")[0]
         if file_:
             write_json_file(file_, data)
-            # with Path(file_).open("w", encoding="utf-8") as f:
-            #     f.write(json.dumps(data, ensure_ascii=False, indent=4))
+           
 
     def load_from_file(self, file_: Optional[str] = None) -> None:
         file_ = file_ or QFileDialog.getOpenFileName(
