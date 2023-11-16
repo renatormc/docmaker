@@ -8,11 +8,14 @@ from doctpl import repo
 
 class App:
     def __init__(self,docmodels: list[DocModel] = [],
-                 env: EnvType | None = None) -> None:
+                 env: EnvType | None = None,
+                 loffice_exe: str | None = None) -> None:
         self.docmodels = docmodels
         if env:
             self.set_env(env)
         cf = get_config()
+        if loffice_exe:
+            cf.loffice_exe = loffice_exe
         repo.connect(cf.local_folder / "db.json")
         
 

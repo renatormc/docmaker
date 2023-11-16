@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 from doctpl.config import get_config
 
+
 class WriterHandler:
     def __init__(self) -> None:
         self.current_run_file: Path | None = None
@@ -21,6 +22,7 @@ class WriterHandler:
         import base64
         data = {"func": func, "args": args, "kwargs": kwargs}
         json_str = json.dumps(data)
+        print(json_str)
         base64_encoded = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
         url = f"doctpl.py$run_func('{base64_encoded}')"
         self._run_macro(url)

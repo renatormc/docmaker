@@ -1,0 +1,1 @@
+from .model import fotos_table_model

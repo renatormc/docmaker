@@ -5,7 +5,7 @@ from settings import APPDIR
 
 test_model = DocModel("Test",
                       templates_folder=APPDIR / "models/test/templates",
-                      format="odt"
+                      format="docx"
                       )
 
 test_model.widgets = [

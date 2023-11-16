@@ -108,7 +108,9 @@ class Helper:
         if action == "subdoc":
             self.add_subdoc(args[0], cur)
 
-    def pos_process(self):
+    def pos_process(self, files_dir = None):
+        if files_dir:
+            self._files_dir = Path(files_dir)
         doc = XSCRIPTCONTEXT_.getDocument()
         replace = doc.createReplaceDescriptor()
         replace.SearchRegularExpression = True
@@ -127,7 +129,6 @@ class Helper:
             action, args = res.group(1), res.group(2).split(",")
             args = [arg.strip() for arg in args]
             actions[action].append({'args': args, 'selFound': selFound})
-        print(actions)
         for item in actions["subdoc"]:
             self.replace_action('subdoc', item['args'], item['selFound'])
         for item in actions["image"]:
@@ -141,9 +142,9 @@ class Helper:
 
 
 class Funcs:
-    def pos_process(self):
+    def pos_process(self, files_dir = None):
         helper = Helper()
-        helper.pos_process()
+        helper.pos_process(files_dir)
 
     def add_doc(self, path: str):
         helper = Helper()
@@ -161,6 +162,7 @@ def run_func(base64_str):
     import base64
     json_bytes = base64.b64decode(base64_str)
     json_str = json_bytes.decode('utf-8')
+    logging.info(json_str)
     data = json.loads(json_str)
     funcs = Funcs()
     getattr(funcs, data['func'])(*data['args'], **data['kwargs'])

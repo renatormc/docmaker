@@ -160,8 +160,9 @@ class SArray:
 
 
     def clear_content(self) -> None:
-        for composite in self.composites:
-            composite.clear_content()
+        self.remove_all_items()
+        # for composite in self.composites:
+        #     composite.clear_content()
 
     def show_error(self, message: str) -> None:
         pass

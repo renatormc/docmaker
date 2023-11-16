@@ -19,7 +19,7 @@ class Config:
             self.tempdir.mkdir()
         except FileExistsError:
             pass
-        self.loffice_exe = "soffice"
+        self.loffice_exe = "C:\\Program Files\\LibreOffice\\program\\soffice.exe" if os.name == "nt" else "soffice"
 
 
 _config = Config()

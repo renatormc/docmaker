@@ -1,10 +1,8 @@
 from typing import Callable, Literal
 from doctpl.gui.widgets.widget import WidgetMatrix
-from doctpl.custom_types import ContextType
+from doctpl.custom_types import ContextType, FormatType
 from pathlib import Path
 
-
-FormatType = Literal['docx', 'odt']
 
 class DocModel:
     def __init__(self, name: str,

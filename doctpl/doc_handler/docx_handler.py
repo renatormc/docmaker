@@ -32,16 +32,6 @@ class DocxHandler:
         self.jinja_env.globals['image'] = SInlineImage(tpl)
         return self.jinja_env
 
-    # def render_temp(self, template, context):
-    #     path = self.templates_folder / template
-    #     if path.exists():
-    #         tpl = DocxTemplate(str(path))
-    #         jinja_env = self.make_jinja_env(tpl)
-    #         tpl.render(context, jinja_env)
-    #         tempfile = self.TEMPFOLDER / f"{uuid4()}.docx"
-    #         tpl.save(tempfile)
-    #         return tempfile
-
     def render(self, template: str, context, dest_file: Union[Path, str]) -> Optional[Path]:
         self.context = context
         dest_file = Path(dest_file)

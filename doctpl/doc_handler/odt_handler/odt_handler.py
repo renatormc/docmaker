@@ -6,9 +6,8 @@ from typing import Callable, TYPE_CHECKING, Union, Optional
 from .render_info import RenderInfo, PicInfo
 import json
 from .filters import filters
-import hashlib
-from doctpl.config import get_config
 from doctpl.custom_types import ContextType
+from .helpers import get_files_dir_path
 if TYPE_CHECKING:
     from doctpl.docmodel import DocModel
 
@@ -16,14 +15,8 @@ if TYPE_CHECKING:
 class RenderOutput:
     def __init__(self, doc_file: Path) -> None:
         self.doc_file = Path(doc_file).absolute()
-        self.files_dir = self.gen_files_dir()
+        self.files_dir = get_files_dir_path(self.doc_file)
         self.render_info = RenderInfo(pics={}, doc_file=str(self.doc_file))
-
-    def gen_files_dir(self) -> Path:
-        hash = hashlib.md5()
-        hash.update(str(self.doc_file).encode('utf-8'))
-        hashed_string = hash.hexdigest()
-        return get_config().tempdir / hashed_string
 
     def init(self, overwrite=False) -> None:
         if overwrite:

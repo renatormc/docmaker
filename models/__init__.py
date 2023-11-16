@@ -1,1 +1,1 @@
-from . import test, celular, base
+from . import test, celular, base, fotos_table

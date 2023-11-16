@@ -18,6 +18,7 @@ tinydb = "^4.8.0"
 docxtpl = "^0.16.7"
 beautifulsoup4 = "^4.12.2"
 tinydb-serialization = "^2.1.1"
+pywin32 = "^306"
 
 
 [tool.poetry.group.dev.dependencies]

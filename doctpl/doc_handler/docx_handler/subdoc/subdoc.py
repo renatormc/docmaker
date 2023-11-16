@@ -22,8 +22,10 @@ class SubdocFunction:
         self.tpl = tpl
         self.handler = handler
 
-    def __call__(self, template, **kargs):
+    def __call__(self, template: str, **kargs):
         path = self.handler.docmodel.templates_folder / template
+        if not path.exists():
+            return ""
         try:
             return add_subdoc_from_template(self.tpl, path, kargs)
         except FileNotFoundError:

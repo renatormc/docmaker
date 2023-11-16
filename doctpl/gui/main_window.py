@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QMessageBox, QPushButton, QFileDialog
-from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QMessageBox, QPushButton, QFileDialog, QScrollArea
+from PySide6.QtCore import QSize, QRect
 from doctpl.gui.form import Form
 from pathlib import Path
-# from doctpl.doc_handler.odt_handler.writer_handler import WriterHandler
+from doctpl.doc_handler.odt_handler.writer_handler import WriterHandler
+from doctpl.doc_handler.docx_handler.word_handler import WordHandler
 from doctpl.doc_handler import get_handler
 from doctpl.gui.helpers import spacer, get_icon
 from doctpl.config import get_config
@@ -13,6 +14,7 @@ from doctpl.docmodel import DocModel
 from doctpl.helpers import  open_in_filemanager, open_file
 from .context_dialog import ContextDialog
 from uuid import uuid4
+from doctpl.doc_handler.odt_handler.helpers import get_files_dir_path
 
 class MainWindow(QMainWindow):
     def __init__(self, docmodels: list[DocModel]) -> None:
@@ -42,12 +44,13 @@ class MainWindow(QMainWindow):
             self.current_form.load(context)
         else:
             self.current_form.load_last_context()
-        self.lay_form.addWidget(self.current_form)
+        self.scr_form.setWidget(self.current_form)
+        # self.lay_form.addWidget(self.current_form)
         self.cbx_form.setCurrentText(name)
-        if self.current_form.docmodel.format == "odt":
-            self.btn_insert.setEnabled(True)
-        else:
-            self.btn_insert.setEnabled(False)
+        # if self.current_form.docmodel.format == "odt":
+        #     self.btn_insert.setEnabled(True)
+        # else:
+        #     self.btn_insert.setEnabled(False)
 
     def load_last(self):
         last_context = repo.get_last_context()
@@ -64,7 +67,7 @@ class MainWindow(QMainWindow):
             self.load_form(name)
         
     def setup_ui(self):
-        self.setWindowIcon(get_icon("writer.png"))
+        self.setWindowIcon(get_icon("app_icon.png"))
         self.main_layout = QVBoxLayout()
         w = QWidget()
         w.setLayout(self.main_layout)
@@ -74,12 +77,11 @@ class MainWindow(QMainWindow):
         for name in self.docmodels.keys():
             self.cbx_form.addItem(name)
         self.main_layout.addWidget(self.cbx_form)
-        self.lay_form = QVBoxLayout()
-        self.main_layout.addLayout(self.lay_form)
+        self.scr_form = QScrollArea(self)
+        self.scr_form.setWidgetResizable(True)
+        self.main_layout.addWidget(self.scr_form)
 
         self.create_buttons()
-
-        # self.setWindowIcon(get_icon("writer.png"))
         self.setWindowTitle("DocTpl")
         self.resize(1000, 800)
 
@@ -109,7 +111,6 @@ class MainWindow(QMainWindow):
         self.lay_buttons.addWidget(self.btn_context)
 
         self.btn_insert = QPushButton("Inserir")
-        self.btn_insert.setEnabled(False)
         self.btn_insert.setIcon(get_icon("paste.png"))
         self.btn_insert.setIconSize(QSize(30, 30))
         self.btn_insert.setMinimumHeight(45)
@@ -174,25 +175,22 @@ class MainWindow(QMainWindow):
         if save_file:
             res = self.render_doc(save_file)
             if res:
-                open_file(save_file)
+                open_file(save_file, self.current_form.docmodel.format)
                 self.close()
-                # if self.current_form.docmodel.format == "odt":
-                #     msg_box = QMessageBox()
-                #     msg_box.setWindowTitle("Pós processamento")
-                #     msg_box.setText("Executar pós processamento?")
-                #     msg_box.setIcon(QMessageBox.Icon.Question)
-                #     msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-                #     result = msg_box.exec()
-                #     if result == QMessageBox.StandardButton.Yes:
-                #         wh = WriterHandler()
-                #         wh.run_macro("pos_process")
+               
 
     def insert_on_editor(self):
         cf = get_config()
         save_file = cf.tempdir /  f"{uuid4().hex}.{self.current_form.docmodel.format}"
         res = self.render_doc(save_file)
         if res:
-            pass
+            if self.current_form.docmodel.format == "odt":
+                wh = WriterHandler()
+                wh.run_macro("add_doc", str(save_file))
+                wh.run_macro("pos_process", files_dir=str(get_files_dir_path(save_file)))
+            else:
+                wh = WordHandler()
+                wh.add_subdoc(save_file)
                         
             
     def gen_context(self) -> ContextType | None:

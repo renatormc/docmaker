@@ -3,8 +3,8 @@ import subprocess
 from doctpl.config import get_config
 import os
 import json
-from typing import Any
-
+from typing import Any, Literal
+from doctpl.custom_types import FormatType
 
 def folder_in_path(folder_path):
     powershell_command = f'$env:Path -split \';\' -contains "{folder_path}"'
@@ -46,13 +46,21 @@ def open_in_filemanager(path: Path) -> None:
         subprocess.Popen(['explorer.exe', str(path)])
     else:
         subprocess.run(['xdg-open', str(path)])
-    
-def open_file(path: Path) -> None:
+
+
+def open_file(path: Path, format: FormatType) -> None:
     if os.name == "nt":
-        subprocess.run([f"{os.getenv('ProgramFiles')}\\ONLYOFFICE\\DesktopEditors\\DesktopEditors", "--ascdesktop-support-debug-info", str(path)])
-        # os.startfile(path) #type: ignore
+        if format == "docx":
+            # subprocess.run([f"{os.getenv('ProgramFiles')}\\ONLYOFFICE\\DesktopEditors\\DesktopEditors",
+            #                "--ascdesktop-support-debug-info", str(path)])
+            os.startfile(path) #type: ignore
+        else:
+            open_writer(path)
     else:
-        subprocess.run(['xdg-open', str(path)])
+        if format == "odt":
+            open_writer(path)
+        else:
+            subprocess.run(['xdg-open', str(path)])
 
 
 def read_json_file(path: Path | str) -> Any:
