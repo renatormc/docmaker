@@ -5,7 +5,8 @@ import shutil
 from typing import Callable, TYPE_CHECKING, Union, Optional
 from .render_info import RenderInfo, PicInfo
 import json
-from .filters import filters
+from doctpl.doc_handler.filters import filters
+from doctpl.doc_handler.jinja_env_functions import global_functions
 from doctpl.custom_types import ContextType
 from .helpers import get_files_dir_path
 if TYPE_CHECKING:
@@ -75,6 +76,8 @@ class OdtHandler:
         engine.environment.globals['subdoc'] = gl.SubDoc(self)
         for filter_ in filters:
             engine.environment.filters[filter_.__name__] = filter_
+        for function_ in global_functions:
+            engine.environment.globals[function_.__name__] = function_
         for name, f in self.filters.items():
             engine.environment.filters[name] = f
         for name, f in self.globals.items():

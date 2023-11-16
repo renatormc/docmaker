@@ -1,4 +1,6 @@
-import win32com.client
+import os
+if os.name == "nt":
+    import win32com.client
 from pathlib import Path
 
 class WordHandler:

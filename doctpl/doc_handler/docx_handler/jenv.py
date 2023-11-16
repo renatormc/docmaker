@@ -1,8 +1,8 @@
 from pathlib import Path
 import jinja2
 from typing import Callable
-from .filters import filters
-from .jinja_env_functions import global_functions
+from doctpl.doc_handler.filters import filters
+from doctpl.doc_handler.jinja_env_functions import global_functions
 
 
 def make_jinja_env(custom_filters: dict[str, Callable],

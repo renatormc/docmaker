@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
-# from app.renderizer.subdoc_gen import SubdocGen
 import os
+
 
 class GlobalFunctions:
 
@@ -35,7 +35,6 @@ class GlobalFunctions:
                 return female_option
         except:
             return male_option
-      
 
     @staticmethod
     def gender(data, male_value):
@@ -44,7 +43,7 @@ class GlobalFunctions:
                 return f"{male_value[:-1]}a"
             return f"{male_value}a"
         return male_value
-            
+
     @staticmethod
     def plural(value, n):
         if n > 1:
@@ -89,8 +88,6 @@ class GlobalFunctions:
     def join_path(*args):
         return os.path.join(*args)
 
-
-    
 
 global_functions = [getattr(GlobalFunctions, func) for func in dir(
     GlobalFunctions) if callable(getattr(GlobalFunctions, func)) and not func.startswith("__")]
