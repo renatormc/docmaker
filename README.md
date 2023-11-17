@@ -2,6 +2,14 @@
 
 Docmaker is a framework to create forms to generate docx documents. It uses docxtpl and pyside6 libs.
 
+# Install
+
+You need to have python 3.11 installed and install dockmaker with command below:
+
+```bash
+pip install docmaker
+```
+
 # Creating models
 
 In order to create a model you have to create a new instance of DocModel defining the templates folder and the widget matrix as example below.
