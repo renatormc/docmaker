@@ -12,7 +12,7 @@ pip install docmaker
 
 # Creating models
 
-In order to create a model you have to create a new instance of DocModel defining the templates folder and the widget matrix as example below.
+In order to create a model you have to create a new instance of DocModel defining the templates folder and the widget matrix as example below. You have to point the folder where your templates docx are.
 
 ```python
 # app.py
