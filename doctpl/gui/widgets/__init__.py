@@ -11,6 +11,7 @@ from .sfloat import SFloat
 from .sfile_chooser import SFileChooser
 from .sstring_list import SStringList
 from .sbutton import SButton
+from .sspacer import SSpacer
 
 
 if TYPE_CHECKING:
@@ -28,5 +29,6 @@ __widgets__: list[Type['Widget']] = [
     SFloat,
     SFileChooser,
     SStringList,
-    SButton
+    SButton,
+    SSpacer
 ]

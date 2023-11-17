@@ -170,13 +170,12 @@ class MainWindow(QMainWindow):
 
 
     def render_file(self):
-        cf = get_config()
-        save_file = cf.local_folder /  f"compiled.{self.current_form.docmodel.format}" if cf.env == "dev" else self.choose_save_file()
+        save_file = self.current_form.docmodel.get_save_file() or self.choose_save_file()
         if save_file:
             res = self.render_doc(save_file)
-            if res:
+            if res and get_config().open_file_after_render:
                 open_file(save_file, self.current_form.docmodel.format)
-                self.close()
+                self.close()            
                
 
     def insert_on_editor(self):

@@ -20,6 +20,7 @@ class Config:
         except FileExistsError:
             pass
         self.loffice_exe = "C:\\Program Files\\LibreOffice\\program\\soffice.exe" if os.name == "nt" else "soffice"
+        self.open_file_after_render = True
 
 
 _config = Config()

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+
 """
 Secretary
     This project is a document engine which make use of LibreOffice
@@ -24,6 +25,9 @@ Secretary
 
 from __future__ import unicode_literals, print_function
 
+from pathlib import Path
+from doctpl.config import get_config
+import shutil
 import io
 import re
 import sys
@@ -37,6 +41,20 @@ from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError, ErrorString
 from jinja2 import Environment, Undefined
 from markupsafe import Markup 
+
+class XmlSaver:
+    def __init__(self) -> None:
+        self.count = 1
+        self.folder = get_config().local_folder / "xml_debug"
+        try:
+           shutil.rmtree(self.folder)
+        except FileNotFoundError:
+            pass
+        self.folder.mkdir()
+
+    def save_xml(self, text):
+        Path(self.folder / f"{self.count}.xml").write_text(text)
+        self.count += 1
 
 PY2 = sys.version_info < (3, 0)
 
@@ -129,6 +147,7 @@ class Renderer(object):
                          create a new environment for this class instance.
 
         """
+        self.xml_saver = XmlSaver()
         self.log = logging.getLogger(__name__)
         self.log.debug('Initing a Renderer instance\nTemplate')
 
@@ -576,12 +595,13 @@ class Renderer(object):
         # Prepare the xml object to be processed by jinja2
         self.log.debug('Rendering XML object')
         template_string = ""
-
+        
         try:
             self.template_images = dict()
             self._prepare_document_tags(xml_document)
             xml_source = xml_document.toxml()
             xml_source = xml_source.encode('ascii', 'xmlcharrefreplace')
+            self.xml_saver.save_xml(xml_source.decode('utf-8'))
             jinja_template = self.environment.from_string(
                 self._unescape_entities(xml_source.decode('utf-8'))
             )

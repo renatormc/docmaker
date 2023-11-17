@@ -1,7 +1,8 @@
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING, Any
 from doctpl.gui.widgets.widget import WidgetMatrix
 from doctpl.custom_types import ContextType, FormatType
 from pathlib import Path
+from doctpl.config import get_config
 if TYPE_CHECKING:
     from doctpl.gui.form import Form
 
@@ -12,7 +13,8 @@ class DocModel:
                  templates_folder: Path | str | None = None,
                  lists_folder: Path | str | None = None,
                  format: FormatType = 'docx',
-                 main_template: str | None = None) -> None:
+                 main_template: str | None = None,
+                 filename_in_workdir = "") -> None:
         self.name = name
         self._widgets = widgets
         self.filters: dict[str, Callable] = {}
@@ -25,6 +27,7 @@ class DocModel:
         self.format: FormatType = format
         self._main_template = main_template
         self.current_form: 'Form' | None = None
+        self.filename_in_workdir = filename_in_workdir
 
     @property
     def widgets(self) -> WidgetMatrix:
@@ -93,7 +96,16 @@ class DocModel:
         if self.current_form:
             self.current_form.load(data)
 
-    def get_field_value(self, field: str):
+    def get_field_value(self, field: str) -> Any:
         if self.current_form:
             return self.current_form.get_field_value(field)
+        return None
+    
+    def get_save_file(self) -> Path | None:
+        """Return place to save generate file or None if not defined"""
+        if self.filename_in_workdir != "":
+            return (Path(".") / self.filename_in_workdir).absolute().with_suffix(f".{self.format}")
+        cf = get_config()
+        if cf.env == "dev":
+            return cf.local_folder /  f"compiled.{self.format}"
         return None

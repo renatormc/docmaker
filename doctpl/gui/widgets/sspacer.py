@@ -1,24 +1,19 @@
-from typing import Any, Optional, TYPE_CHECKING, Callable
-
+from typing import Any, Optional, TYPE_CHECKING
 from PySide6.QtWidgets import QLineEdit
-from PySide6.QtWidgets import QWidget,  QPushButton
+from PySide6.QtWidgets import QWidget
 from doctpl.gui.widgets.label_error import LabelError
 if TYPE_CHECKING:
     from doctpl.docmodel import DocModel
 
-class SButton:
+class SSpacer:
 
-    def __init__(
-            self, label: str,
-            on_click: Callable,
-            stretch=0) -> None:
-        self.on_click = on_click
-        self._label = label
+    def __init__(self, stretch=0) -> None:
         self._stretch = stretch
         self._docmodel: Optional[DocModel] = None 
-        super(SButton, self).__init__()
+        super(SSpacer, self).__init__()
         self._w: Optional[QLineEdit] = None
         self._lbl_error: Optional[LabelError] = None
+
 
     @property
     def stretch(self) -> int:
@@ -38,7 +33,7 @@ class SButton:
 
     @property
     def label(self) -> str:
-        return self._label
+        return ""
 
     @property
     def name(self) -> str:
@@ -56,8 +51,7 @@ class SButton:
         return None
 
     def get_widget(self) -> QWidget:
-        w = QPushButton(self.label)
-        w.clicked.connect(self.on_click)
+        w = QWidget()
         return w
 
     def show_error(self, message: str) -> None:

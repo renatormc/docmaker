@@ -5,6 +5,8 @@ from doctpl import DocModel
 from settings import APPDIR
 from pathlib import Path
 
+WORKDIR = Path(".").absolute()
+
 def convert_pericia(value: str) -> dict:
     ret = {}
     try:
@@ -20,15 +22,13 @@ celular_model = DocModel(
     "Celular", 
     templates_folder=APPDIR / "models/celular/templates",
     lists_folder=APPDIR / "models/celular/listas",
-    format="odt"
+    format="docx",
+    filename_in_workdir="laudo.docx"
 )
-''
+
 def ler_requisicao():
     from doctpl.collectors.odin_pdf_parser import OdinPdfParser
-    workdir: str | Path | None = celular_model.get_field_value("workdir")
-    if workdir is None:
-        return
-    path = Path(workdir) / "Requisicao.pdf"
+    path = WORKDIR / "Requisicao.pdf"
     if not path.is_file():
         return
     parser = OdinPdfParser(path)
@@ -47,9 +47,8 @@ def ler_requisicao():
 
 celular_model.widgets = [
     [
-        wt.SFileChooser("workdir",label="Pasta de trabalho", required=True, type="dir", 
-                        default=Path(".").absolute(), stretch=3),
-        wt.SButton("Ler requisição", on_click=ler_requisicao, stretch=1),        
+        wt.SButton("Ler requisição", on_click=ler_requisicao, stretch=1),    
+        wt.SSpacer(3)    
     ],
     [
         wt.SText("pericia", label="Pericia", placeholder="SEQ/RG/ANO", converter=convert_pericia),
@@ -74,7 +73,8 @@ celular_model.widgets = [
     [
         wt.SText("lacre_entrada", label="Lacre entrada"),
         wt.SText("lacre_saida", label="Lacre saída"),
-        wt.SComboBox("n_midias", "Nº Mídias", choices="opcoes_midias")
+        wt.SComboBox("n_midias", "Nº Mídias", choices="opcoes_midias"),
+        wt.SSpinBox("n_col_fotos", label="Número de colunas fotos", default=2)
     ]
 
 ]
@@ -82,7 +82,8 @@ celular_model.widgets = [
 @celular_model.pre_process()
 def pre_process(context):
     context['peritos'] = context['relatores'] + context['revisores']
-    context['objetos'] = PicsAnalyzer("fotos", prefix="Celular")(context['workdir'])
+    context['objetos'] = PicsAnalyzer("fotos", prefix="Celular")(WORKDIR)
     context['n_objetos'] = len(context['objetos'])
+    context['pics_width'] = int(150/context['n_col_fotos'])
     return context
 
