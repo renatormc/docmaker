@@ -5,13 +5,14 @@ from pathlib import Path
 
 fotos_table_model = DocModel("Tabela fotos",
                              templates_folder=APPDIR / "models/fotos_table/templates",
-                             format="docx"
+                             format="odt"
                              )
 
 fotos_table_model.widgets = [
 
     [
-        wt.SFileChooser("files", label="Pasta com fotos", type="dir", required=True)
+        wt.SFileChooser("files", label="Pasta com fotos", type="dir", required=True),
+        wt.SSpinBox("total_width", "Largura total", default=150, min=80, max=200),
     ],
     [
         wt.SText("caption", label="Legenda"),
@@ -23,6 +24,6 @@ fotos_table_model.widgets = [
 
 @fotos_table_model.pre_process()
 def pre_process(context):
-    w = int(160/context['n_cols'])
+    w = int(context['total_width']/context['n_cols'])
     context['pics'] = [{'path': str(f), 'caption': f.name, 'width': w} for f in Path(context['files']).iterdir()]
     return context

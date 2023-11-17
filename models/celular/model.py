@@ -20,8 +20,9 @@ celular_model = DocModel(
     "Celular", 
     templates_folder=APPDIR / "models/celular/templates",
     lists_folder=APPDIR / "models/celular/listas",
+    format="odt"
 )
-
+''
 def ler_requisicao():
     from doctpl.collectors.odin_pdf_parser import OdinPdfParser
     workdir: str | Path | None = celular_model.get_field_value("workdir")
