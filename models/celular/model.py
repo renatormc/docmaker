@@ -1,7 +1,7 @@
-from doctpl.gui import widgets as wt
-from doctpl.gui.widgets.types import ValidationError
-from doctpl.converters import StringListConverter, DateConverter, PicsAnalyzer
-from doctpl import DocModel
+from docmaker.gui import widgets as wt
+from docmaker.gui.widgets.types import ValidationError
+from docmaker.converters import StringListConverter, DateConverter, PicsAnalyzer
+from docmaker import DocModel
 from settings import APPDIR
 from pathlib import Path
 
@@ -27,7 +27,7 @@ celular_model = DocModel(
 )
 
 def ler_requisicao():
-    from doctpl.collectors.odin_pdf_parser import OdinPdfParser
+    from docmaker.collectors.odin_pdf_parser import OdinPdfParser
     path = WORKDIR / "Requisicao.pdf"
     if not path.is_file():
         return

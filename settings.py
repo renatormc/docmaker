@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-from doctpl.custom_types import EnvType
+from docmaker.custom_types import EnvType
 from dotenv import load_dotenv
 load_dotenv()
 

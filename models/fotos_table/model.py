@@ -1,5 +1,5 @@
-from doctpl.gui import widgets as wt
-from doctpl import DocModel
+from docmaker.gui import widgets as wt
+from docmaker import DocModel
 from settings import APPDIR
 from pathlib import Path
 

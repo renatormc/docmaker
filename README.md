@@ -1,17 +1,22 @@
-# Doctpl
+# Docmaker
 
-Doctpl is a framework to create forms to generate docx documents. It uses docxtpl and pyside6 libs.
+Docmaker is a framework to create forms to generate docx documents. It uses docxtpl and pyside6 libs.
 
 # Creating models
 
 In order to create a model you have to create a new instance of DocModel defining the templates folder and the widget matrix as example below.
 
 ```python
-from doctpl.gui import widgets as wt
-from doctpl.gui.widgets.types import ValidationError
-from doctpl.converters import StringListConverter, DateConverter
-from doctpl import DocModel
-from settings import APPDIR
+# app.py
+from docmaker.gui import widgets as wt
+from docmaker.gui.widgets.types import ValidationError
+from docmaker.converters import StringListConverter, DateConverter
+from docmaker import DocModel
+from docmaker import App
+from pathlib import Path
+import os
+
+SCRIPT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
 
 def convert_pericia(value: str) -> dict:
     ret = {}
@@ -26,8 +31,8 @@ def convert_pericia(value: str) -> dict:
 
 celular_model = DocModel(
     "Celular", 
-    templates_folder=APPDIR / "models/celular/templates",
-    lists_folder=APPDIR / "models/celular/listas",
+    templates_folder=SCRIPT_DIR / "models/celular/templates",
+    lists_folder=SCRIPT_DIR / "models/celular/listas",
 )
 
 celular_model.widgets = [
@@ -64,38 +69,16 @@ celular_model.widgets = [
 def pre_process(context):
     context['peritos'] = context['relatores'] + context['revisores']
     return context
-```
 
-# Run the app
-
-You have to create an app and register all your models like below:
-
-```python
-from doctpl import App
-from models.celular.model import celular_model
-from models.test.model import test_model
-import settings
-
-app = App(settings.LOCAL_FOLDER)
-app.set_env(settings.ENV)
-
+app = App()
+app.set_env("dev")
 app.add_docmodel(celular_model)
-app.add_docmodel(test_model)
-
 app.run_gui()  
 ```
 
-# .env
 
-```
-ENV=dev
-DOCTPL_LOCAL_FOLDER=/path/to/.local
-```
+# Run application
 
-# Link macro
-
-If you are gonna use LibreOffice you will need to make use of some macros, so you have to install the extension APSO and execute the command below to link the macros inside libreoffice.
-
-```
-python -m doctpl link-macro
+```bash
+python app.py
 ```

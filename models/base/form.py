@@ -1,7 +1,7 @@
-from doctpl.gui.form import Form
-from doctpl.gui import widgets as wt
-from doctpl.gui.widgets.types import ValidationError
-from doctpl.converters import StringListConverter
+from docmaker.gui.form import Form
+from docmaker.gui import widgets as wt
+from docmaker.gui.widgets.types import ValidationError
+from docmaker.converters import StringListConverter
 
 
 def convert_pericia(value: str) -> dict:

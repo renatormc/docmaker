@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "doctpl"
+name = "docmaker"
 version = "0.1.0"
 description = ""
 authors = ["renatormc <renatomartinsrmc@gmail.com>"]

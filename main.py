@@ -1,4 +1,4 @@
-from doctpl import App
+from docmaker import App
 from models.celular.model import celular_model
 from models.test.model import test_model
 from models.fotos_table.model import fotos_table_model
