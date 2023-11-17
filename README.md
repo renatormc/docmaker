@@ -79,7 +79,6 @@ def pre_process(context):
     return context
 
 app = App()
-app.set_env("dev")
 app.add_docmodel(celular_model)
 app.run_gui()  
 ```
