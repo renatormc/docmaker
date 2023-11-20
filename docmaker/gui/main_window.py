@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QMessageBox, QPushButton, QFileDialog, QScrollArea
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QComboBox, QMessageBox, QPushButton, QFileDialog, QScrollArea, QLabel, QLineEdit, QToolButton
 from PySide6.QtCore import QSize, QRect
 from docmaker.gui.form import Form
 from pathlib import Path
@@ -15,6 +15,7 @@ from docmaker.helpers import  open_in_filemanager, open_file
 from .context_dialog import ContextDialog
 from uuid import uuid4
 from docmaker.doc_handler.odt_handler.helpers import get_files_dir_path
+import os
 
 class MainWindow(QMainWindow):
     def __init__(self, docmodels: list[DocModel]) -> None:
@@ -47,6 +48,7 @@ class MainWindow(QMainWindow):
         self.scr_form.setWidget(self.current_form)
         # self.lay_form.addWidget(self.current_form)
         self.cbx_form.setCurrentText(name)
+        self.config_buttons()
         # if self.current_form.docmodel.format == "odt":
         #     self.btn_insert.setEnabled(True)
         # else:
@@ -73,10 +75,30 @@ class MainWindow(QMainWindow):
         w.setLayout(self.main_layout)
         self.setCentralWidget(w)
 
+        lay_top = QHBoxLayout()
+
+        lay1 = QVBoxLayout()
         self.cbx_form = QComboBox()
         for name in self.docmodels.keys():
             self.cbx_form.addItem(name)
-        self.main_layout.addWidget(self.cbx_form)
+        lay1.addWidget(QLabel("Modelo"))
+        lay1.addWidget(self.cbx_form)
+        lay_top.addLayout(lay1, 1)
+
+        lay2 = QVBoxLayout()
+        lay2.addWidget(QLabel("Diretório de trabalho"))
+        lay_top.addLayout(lay2, 1)
+        lay3 = QHBoxLayout()
+        self.led_workdir = QLineEdit()
+        self.led_workdir.setReadOnly(True)
+        self.led_workdir.setText(str(Path(".").absolute()))
+        lay3.addWidget(self.led_workdir)
+        self.btn_choose_workdir = QToolButton()
+        self.btn_choose_workdir.setText("...")
+        lay3.addWidget(self.btn_choose_workdir)
+        lay2.addLayout(lay3)
+
+        self.main_layout.addLayout(lay_top)
         self.scr_form = QScrollArea(self)
         self.scr_form.setWidgetResizable(True)
         self.main_layout.addWidget(self.scr_form)
@@ -84,6 +106,7 @@ class MainWindow(QMainWindow):
         self.create_buttons()
         self.setWindowTitle("DocTpl")
         self.resize(1000, 800)
+
 
     def create_buttons(self):
         self.lay_buttons = QHBoxLayout()
@@ -102,6 +125,13 @@ class MainWindow(QMainWindow):
         self.btn_clear.setMinimumHeight(45)
         self.btn_clear.setMinimumWidth(120)
         self.lay_buttons.addWidget(self.btn_clear)
+
+        self.btn_initial_load = QPushButton("Carregamento inicial")
+        self.btn_initial_load.setIcon(get_icon("initial_load.png"))
+        self.btn_initial_load.setIconSize(QSize(30, 30))
+        self.btn_initial_load.setMinimumHeight(45)
+        self.btn_initial_load.setMinimumWidth(120)
+        self.lay_buttons.addWidget(self.btn_initial_load)
 
         self.btn_context = QPushButton("Gerar contexto")
         self.btn_context.setIcon(get_icon("json.png"))
@@ -126,6 +156,13 @@ class MainWindow(QMainWindow):
 
         self.main_layout.addLayout(self.lay_buttons)
 
+    def config_buttons(self) -> None:
+        self.btn_initial_load.setVisible(self.current_form.docmodel.has_initial_load())
+        if self.current_form.docmodel.format == "docx" and os.name != "nt":
+            self.btn_insert.setVisible(False)
+        else:
+            self.btn_insert.setVisible(True)
+
     def connections(self):
         self.cbx_form.currentTextChanged.connect(self.change_model)
         self.btn_render_file.clicked.connect(self.render_file)
@@ -133,7 +170,22 @@ class MainWindow(QMainWindow):
         self.btn_open_templates.clicked.connect(self.open_templates)
         self.btn_context.clicked.connect(self.show_context)
         self.btn_insert.clicked.connect(self.insert_on_editor)
-  
+        self.btn_initial_load.clicked.connect(self.initial_load)
+        self.btn_choose_workdir.clicked.connect(self.change_workdir)
+
+    def initial_load(self):
+        if self.current_form.docmodel.has_initial_load():
+            data = self.current_form.docmodel.apply_initial_load()
+            self.current_form.load(data)
+       
+    def change_workdir(self):
+        dir_ = QFileDialog.getExistingDirectory(
+            self, "Escolher diretório", ".")
+        if dir_:
+            os.chdir(dir_)
+            self.led_workdir.setText(dir_)
+
+
     def clear_form(self):
         self.current_form.clear_content()
 

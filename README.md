@@ -70,7 +70,6 @@ celular_model.widgets = [
         wt.SText("lacre_saida", label="Lacre saída"),
         wt.SComboBox("n_midias", "Nº Mídias", choices="opcoes_midias")
     ]
-
 ]
 
 @celular_model.pre_process()

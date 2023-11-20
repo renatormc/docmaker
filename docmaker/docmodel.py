@@ -20,6 +20,7 @@ class DocModel:
         self.filters: dict[str, Callable] = {}
         self.global_funcs: dict[str, Callable] = {}
         self._pre_process: Callable[[ContextType], ContextType] | None = None
+        self._initial_load: Callable[[], ContextType] | None = None
         self._templates_folder: Path | None = Path(
             templates_folder) if templates_folder else None
         self._lists_folder: Path | None = Path(
@@ -86,11 +87,25 @@ class DocModel:
             self._pre_process = f
             return f
         return decorator
+    
+    def initial_load(self):
+        def decorator(f: Callable[[], ContextType]):
+            self._initial_load = f
+            return f
+        return decorator
 
     def apply_pre_process(self, context: ContextType) -> ContextType:
         if self._pre_process is not None:
             return self._pre_process(context)
         return context
+    
+    def apply_initial_load(self) -> ContextType:
+        if self._initial_load is not None:
+            return self._initial_load()
+        return {}
+    
+    def has_initial_load(self) -> bool:
+        return self._initial_load is not None
     
     def load_data(self, data: ContextType) -> None:
         if self.current_form:
