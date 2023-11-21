@@ -5,7 +5,7 @@ from docmaker import DocModel
 from settings import APPDIR
 from pathlib import Path
 
-WORKDIR = Path(".").absolute()
+
 
 
 def convert_pericia(value: str) -> dict:
@@ -67,6 +67,7 @@ celular_model.widgets = [
 @celular_model.pre_process()
 def pre_process(context):
     context['peritos'] = context['relatores'] + context['revisores']
+    WORKDIR = Path(".").absolute()
     context['objetos'] = PicsAnalyzer("fotos", prefix="Celular")(WORKDIR)
     context['n_objetos'] = len(context['objetos'])
     context['pics_width'] = int(150/context['n_col_fotos'])
@@ -76,7 +77,9 @@ def pre_process(context):
 @celular_model.initial_load()
 def initial_load():
     from docmaker.collectors.odin_pdf_parser import OdinPdfParser
+    WORKDIR = Path(".").absolute()
     path = WORKDIR / "Requisicao.pdf"
+    print(path)
     if not path.is_file():
         return
     parser = OdinPdfParser(path)

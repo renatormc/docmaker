@@ -93,9 +93,14 @@ class MainWindow(QMainWindow):
         self.led_workdir.setReadOnly(True)
         self.led_workdir.setText(str(Path(".").absolute()))
         lay3.addWidget(self.led_workdir)
+       
         self.btn_choose_workdir = QToolButton()
         self.btn_choose_workdir.setText("...")
         lay3.addWidget(self.btn_choose_workdir)
+        self.btn_open_workdir = QToolButton()
+        self.btn_open_workdir.setIcon(get_icon("folder.png"))
+        self.btn_open_workdir.setToolTip("Abrir diretório de trabalho")
+        lay3.addWidget(self.btn_open_workdir)
         lay2.addLayout(lay3)
 
         self.main_layout.addLayout(lay_top)
@@ -172,6 +177,11 @@ class MainWindow(QMainWindow):
         self.btn_insert.clicked.connect(self.insert_on_editor)
         self.btn_initial_load.clicked.connect(self.initial_load)
         self.btn_choose_workdir.clicked.connect(self.change_workdir)
+        self.btn_open_workdir.clicked.connect(self.open_workdir)
+        
+
+    def open_workdir(self):
+        open_in_filemanager(".")
 
     def initial_load(self):
         if self.current_form.docmodel.has_initial_load():
