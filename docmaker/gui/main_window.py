@@ -205,8 +205,8 @@ class MainWindow(QMainWindow):
     def choose_save_file(self) -> Path | None:
         file_dialog = QFileDialog()
         file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
-        file_dialog.setNameFilter("DOCX Files (*.docx)")
-        file_dialog.setDefaultSuffix("docx")
+        file_dialog.setNameFilter("DOCX Files (*.docx)" if self.current_form.docmodel.format == "docx" else "ODT Files (*.odt)")
+        file_dialog.setDefaultSuffix(self.current_form.docmodel.format)
         file_dialog.setDirectory(str(Path(".").absolute()))
         if file_dialog.exec_():
             return Path(file_dialog.selectedFiles()[0])

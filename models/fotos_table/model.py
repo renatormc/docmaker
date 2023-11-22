@@ -5,8 +5,11 @@ from pathlib import Path
 
 fotos_table_model = DocModel("Tabela fotos",
                              templates_folder=APPDIR / "models/fotos_table/templates",
-                             format="odt"
+                             format="odt",
+                             main_template="main.odt",
+                             filename_in_workdir="",
                              )
+fotos_table_model.filename_in_workdir = "test.odt"
 
 fotos_table_model.widgets = [
 
