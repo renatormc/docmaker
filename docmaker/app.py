@@ -5,6 +5,7 @@ import sys
 from docmaker.config import get_config
 from docmaker.custom_types import EnvType
 from docmaker import repo
+from pathlib import Path
 
 class App:
     def __init__(self,docmodels: list[DocModel] = [],
@@ -19,7 +20,10 @@ class App:
         if loffice_exe:
             cf.loffice_exe = loffice_exe
         repo.connect(cf.local_folder / "db.json")
-        
+
+    def set_templates_folder(self, folder: Path | str) -> None:
+        cf = get_config()
+        cf.templates_folder = Path(folder)
 
     def add_docmodel(self, m: DocModel) -> None:
         self.docmodels.append(m)

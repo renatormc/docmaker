@@ -52,6 +52,9 @@ class DocModel:
     @property
     def templates_folder(self) -> Path:
         if self._templates_folder is None:
+            cf = get_config()
+            if cf.templates_folder:
+                return cf.templates_folder
             raise Exception("templates_folder was not set")
         return self._templates_folder
 

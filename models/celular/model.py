@@ -6,8 +6,6 @@ from settings import APPDIR
 from pathlib import Path
 
 
-
-
 def convert_pericia(value: str) -> dict:
     ret = {}
     try:
@@ -21,10 +19,10 @@ def convert_pericia(value: str) -> dict:
 
 celular_model = DocModel(
     "Celular",
-    templates_folder=APPDIR / "models/celular/templates",
     lists_folder=APPDIR / "models/celular/listas",
-    format="docx",
-    filename_in_workdir="laudo.docx"
+    format="odt",
+    filename_in_workdir="laudo.odt",
+    main_template="main_celular.odt"
 )
 
 

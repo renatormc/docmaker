@@ -5,6 +5,7 @@ from models.fotos_table.model import fotos_table_model
 import settings
 
 app = App()
+app.set_templates_folder(settings.APPDIR / "models/templates")
 app.set_env(settings.ENV)
 
 app.add_docmodel(celular_model)

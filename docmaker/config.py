@@ -21,6 +21,7 @@ class Config:
             pass
         self.loffice_exe = "C:\\Program Files\\LibreOffice\\program\\soffice.exe" if os.name == "nt" else "soffice"
         self.open_file_after_render = True
+        self.templates_folder: Path | None = None
 
 
 _config = Config()
