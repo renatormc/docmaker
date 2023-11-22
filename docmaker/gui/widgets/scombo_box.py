@@ -13,7 +13,7 @@ class SComboBox:
     def __init__(self, name: str, label="", choices: list[str]|str=[], stretch=0, default="", converter: Optional[ConverterType] = None):
         self._name = name
         self.choices = choices
-        self._label = label or self.name
+        self._label = label
         self._stretch = stretch
         self.default = default
         self.converter = converter

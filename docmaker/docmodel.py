@@ -23,8 +23,7 @@ class DocModel:
         self._initial_load: Callable[[], ContextType] | None = None
         self._templates_folder: Path | None = Path(
             templates_folder) if templates_folder else None
-        self._lists_folder: Path | None = Path(
-            lists_folder) if lists_folder else None
+        self.lists_folder: Path | None = Path(lists_folder) if lists_folder else None
         self.format: FormatType = format
         self._main_template = main_template
         self.current_form: 'Form' | None = None
@@ -40,15 +39,15 @@ class DocModel:
     def widgets(self, value: WidgetMatrix) -> None:
         self._widgets = value
 
-    @property
-    def lists_folder(self) -> Path:
-        if self._lists_folder is None:
-            raise Exception("lists_folder was not set")
-        return self._lists_folder
+    # @property
+    # def lists_folder(self) -> Path:
+    #     # if self._lists_folder is None:
+    #     #     raise Exception("lists_folder was not set")
+    #     return self._lists_folder
 
-    @lists_folder.setter
-    def lists_folder(self, value: Path | str) -> None:
-        self._lists_folder = Path(value)
+    # @lists_folder.setter
+    # def lists_folder(self, value: Path | str) -> None:
+    #     self._lists_folder = Path(value)
 
     @property
     def templates_folder(self) -> Path:

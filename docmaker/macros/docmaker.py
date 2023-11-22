@@ -1,5 +1,6 @@
 from com.sun.star.text.TextContentAnchorType import AS_CHARACTER
 from com.sun.star.awt import Size
+from com.sun.star.beans import PropertyValue
 import uno
 from pathlib import Path
 import re
@@ -139,6 +140,13 @@ class Helper:
         hash.update(str(path).encode('utf-8'))
         hashed_string = hash.hexdigest()
         return TEMPDIR / hashed_string
+    
+    def gen_pdf(self):
+        path = self.get_doc_path().with_suffix(".pdf")
+        property = (PropertyValue( "FilterName" , 0, "writer_pdf_Export" , 0 ),)
+        doc = XSCRIPTCONTEXT_.getDocument()
+        doc.storeToURL(path.as_uri(), property)
+        os.startfile(path)
 
 
 class Funcs:
@@ -171,3 +179,7 @@ def run_func(base64_str):
 def pos_process():
     helper = Helper()
     helper.pos_process()
+
+def gen_pdf():
+    helper = Helper()
+    helper.gen_pdf()
