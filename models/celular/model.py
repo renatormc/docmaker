@@ -22,7 +22,7 @@ celular_model = DocModel(
     lists_folder=APPDIR / "models/celular/listas",
     format="odt",
     filename_in_workdir="laudo.odt",
-    main_template="main_celular.odt"
+    main_template="main_generic.odt"
 )
 
 
@@ -45,6 +45,9 @@ celular_model.widgets = [
     [
         wt.SText("n_quesito", label="Número quesito"),
         wt.SText("autoridade", label="Autoridade"),
+    ],
+    [
+       wt.SText("pessoas_envolvidas", label="Pessoas envolvidas", converter=StringListConverter())
     ],
     [
         wt.SText("relatores", label="Relatores", placeholder="Relatores separados por vírgula",

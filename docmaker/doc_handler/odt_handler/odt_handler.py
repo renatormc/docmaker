@@ -117,7 +117,7 @@ class OdtHandler:
         dest = Path(dest)
         tpl = self.docmodel.templates_folder / template
         engine = self.new_engine()
-        result = engine.render(tpl, **context)
+        result = engine.render(tpl, ctx=context, **context)
         with dest.open('wb') as f:
             f.write(result)
 
@@ -130,7 +130,6 @@ class OdtHandler:
 
 
     def render(self, template: str, context: ContextType, dest_file: Union[Path, str]) -> Optional[Path]:
-        self.current_context = context
         self._render_files = RenderOutput(Path(dest_file))
         self.render_files.init(overwrite=True)
         self.render_odt(template, dest_file, context)
