@@ -146,7 +146,10 @@ class Helper:
         property = (PropertyValue( "FilterName" , 0, "writer_pdf_Export" , 0 ),)
         doc = XSCRIPTCONTEXT_.getDocument()
         doc.storeToURL(path.as_uri(), property)
-        os.startfile(path)
+        if os.name == "nt":
+            os.startfile(path)
+        else:
+            os.system(f"xdg-open \"{path}\"")
 
 
 class Funcs:

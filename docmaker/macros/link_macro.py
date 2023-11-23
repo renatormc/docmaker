@@ -5,9 +5,10 @@ import os
 def link_lo_macro():
     folder = Path.home()
     aux = "Libreoffice" if os.name == "nt" else "libreoffice"
+    pfrom = LIBDIR / "macros/docmaker.py"
     for item in folder.glob(f"**/{aux}/**/Scripts/**/python"):
         if item.is_dir():
-            pfrom = LIBDIR / "macros/docmaker.py"
+            
             pto = item / "docmaker.py"
             try:
                 pto.unlink()
@@ -18,3 +19,4 @@ def link_lo_macro():
             break
     else:
         print("Libreoffice scripts folder not found")
+        print(f"Link manually: {pfrom}")

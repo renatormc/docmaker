@@ -69,6 +69,7 @@ class OdtHandler:
         self._pic_counter = 0
         self.filters: dict[str, Callable] = {}
         self.globals: dict[str, Callable] = {}
+        self.current_context: ContextType = {}
 
     def new_engine(self) -> sct.Renderer:
         engine = sct.Renderer()
@@ -123,11 +124,13 @@ class OdtHandler:
     def render_subdoc(self, template: str, context: ContextType) -> str:
         name = self.gen_subdoc_name()
         dest = self.render_files.subdocs_dir / name
+        context['ctx'] = self.current_context
         self.render_odt(template, dest, context)
         return name
 
 
     def render(self, template: str, context: ContextType, dest_file: Union[Path, str]) -> Optional[Path]:
+        self.current_context = context
         self._render_files = RenderOutput(Path(dest_file))
         self.render_files.init(overwrite=True)
         self.render_odt(template, dest_file, context)
