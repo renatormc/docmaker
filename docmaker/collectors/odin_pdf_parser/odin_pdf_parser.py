@@ -25,7 +25,8 @@ class OdinPdfParser:
         data = OdinParserData()
 
         text = self.parts_res.group(1)
-        reg = r'SEÇÃO.*- ICLR.*?(\d+/\d+) RG (\d+/\d+).*Ocorrência: (\d+/\d+).*?(\d+/\d+/\d+).*RAI: (\d+).*Unidade Solicitante: (.+?)\s*Autoridade: (.+?)\s*Tipificações.*'
+        aux = "LABORATÓRIO" if "LABORATÓRIO" in text else "SEÇÃO"
+        reg = aux + r'.*- ICLR.*?(\d+/\d+) RG (\d+/\d+).*Ocorrência: (\d+/\d+).*?(\d+/\d+/\d+).*RAI: (\d+).*Unidade Solicitante: (.+?)\s*Autoridade: (.+?)\s*Tipificações.*'
         res = re.search(reg, text, re.MULTILINE | re.DOTALL)
 
         if res:

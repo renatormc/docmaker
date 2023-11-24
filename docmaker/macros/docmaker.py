@@ -74,11 +74,12 @@ class Helper:
 
     def add_subdoc_on_selection(self, path: Path):
         self.replace_selection("{{ replace }}")
-        cur = self.find_variable("replace")
+        self.replace_by_subdoc("replace", path)
+
+    def replace_by_subdoc(self, var: str, path: Path):
+        cur = self.find_variable(var)
         if cur:
             cur.insertDocumentFromURL(path.as_uri(), ())
-        logging.info(str(cur))
-        
 
     def replace_selection(self, text):
         desktop = XSCRIPTCONTEXT_.getDesktop()
@@ -92,15 +93,23 @@ class Helper:
         replace.SearchRegularExpression = True
         reg = r'\{\{\s*$var\s*\}\}'.replace("$var", var)
         replace.SearchString = reg
-        selsFound = doc.findAll(replace)
+        return doc.findFirst(replace)
+
+    def find_text(self, text):
+        doc = XSCRIPTCONTEXT_.getDocument()
+        replace = doc.createReplaceDescriptor()
+        replace.SearchRegularExpression = True
+        replace.SearchString = text
         return doc.findFirst(replace)
 
     def add_subdoc(self, name: str, cur):
         path = self.file_path(f"subdocs/{name}")
-        cur.setString("")
-        cursor = cur.Text.createTextCursor()
-        cursor.gotoEnd(False)
-        cursor.insertDocumentFromURL(path.as_uri(), ())
+        aux = name.replace(".", "_")
+        cur.setString("{{ " + aux + " }}")
+        self.replace_by_subdoc(aux, path)
+        # cursor = cur.Text.createTextCursor()
+        # cursor.gotoEnd(False)
+        # cursor.insertDocumentFromURL(path.as_uri(), ())
 
     def replace_action(self, action, args, cur):
         if action == "image":
@@ -109,7 +118,7 @@ class Helper:
         if action == "subdoc":
             self.add_subdoc(args[0], cur)
 
-    def pos_process(self, files_dir = None):
+    def pos_process(self, files_dir=None):
         if files_dir:
             self._files_dir = Path(files_dir)
         doc = XSCRIPTCONTEXT_.getDocument()
@@ -121,7 +130,6 @@ class Helper:
         actions = {
             "subdoc": [],
             "image": []
-            
         }
         for i in range(0, selsFound.getCount()):
             selFound = selsFound.getByIndex(i)
@@ -140,10 +148,10 @@ class Helper:
         hash.update(str(path).encode('utf-8'))
         hashed_string = hash.hexdigest()
         return TEMPDIR / hashed_string
-    
+
     def gen_pdf(self):
         path = self.get_doc_path().with_suffix(".pdf")
-        property = (PropertyValue( "FilterName" , 0, "writer_pdf_Export" , 0 ),)
+        property = (PropertyValue("FilterName", 0, "writer_pdf_Export", 0),)
         doc = XSCRIPTCONTEXT_.getDocument()
         doc.storeToURL(path.as_uri(), property)
         if os.name == "nt":
@@ -153,7 +161,7 @@ class Helper:
 
 
 class Funcs:
-    def pos_process(self, files_dir = None):
+    def pos_process(self, files_dir=None):
         helper = Helper()
         helper.pos_process(files_dir)
 
@@ -182,6 +190,7 @@ def run_func(base64_str):
 def pos_process():
     helper = Helper()
     helper.pos_process()
+
 
 def gen_pdf():
     helper = Helper()

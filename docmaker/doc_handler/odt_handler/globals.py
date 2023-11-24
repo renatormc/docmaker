@@ -35,6 +35,8 @@ class SubDoc:
     def __init__(self, renderer: 'OdtHandler') -> None:
         self.renderer = renderer
 
-    def __call__(self, template: str,  **context: ContextType) -> Any:
-        name = self.renderer.render_subdoc(template, context)
+    def __call__(self, template: str, context: ContextType = {}, **kargs: ContextType) -> Any:
+        d = context.copy()
+        d.update(kargs)
+        name = self.renderer.render_subdoc(template, d)
         return totag("subdoc", name)

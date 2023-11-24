@@ -35,6 +35,7 @@ class DocxHandler:
 
 
     def render(self, template: str, context: ContextType, dest_file: Union[Path, str]) -> Optional[Path]:
+        context['ctx'] = context
         self.context = context
         dest_file = Path(dest_file)
         path = self.docmodel.templates_folder / template

@@ -117,7 +117,9 @@ class OdtHandler:
         dest = Path(dest)
         tpl = self.docmodel.templates_folder / template
         engine = self.new_engine()
-        result = engine.render(tpl, ctx=context, **context)
+        if 'ctx' not in context:
+            context['ctx'] = context
+        result = engine.render(tpl, **context)
         with dest.open('wb') as f:
             f.write(result)
 
