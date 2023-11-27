@@ -1,0 +1,1 @@
+from .model import laudo_model

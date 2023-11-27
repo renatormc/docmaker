@@ -90,6 +90,8 @@ class SFileChooser:
         w.setLayout(l)
         l.addWidget(QLabel(self.label))
         self._w = QLineEdit()
+        if self.default:
+            self._w.setText(str(self.default))
         self._w.setPlaceholderText(self.placeholder)
         lay_horizontal = QHBoxLayout()
         lay_horizontal.addWidget(self._w)

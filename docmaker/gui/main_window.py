@@ -46,13 +46,9 @@ class MainWindow(QMainWindow):
         else:
             self.current_form.load_last_context()
         self.scr_form.setWidget(self.current_form)
-        # self.lay_form.addWidget(self.current_form)
         self.cbx_form.setCurrentText(name)
         self.config_buttons()
-        # if self.current_form.docmodel.format == "odt":
-        #     self.btn_insert.setEnabled(True)
-        # else:
-        #     self.btn_insert.setEnabled(False)
+
 
     def load_last(self):
         last_context = repo.get_last_context()
@@ -252,6 +248,7 @@ class MainWindow(QMainWindow):
             else:
                 wh = WordHandler()
                 wh.add_subdoc(save_file)
+            self.close()
                         
             
     def gen_context(self) -> ContextType | None:

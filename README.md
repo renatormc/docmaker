@@ -88,3 +88,63 @@ app.run_gui()
 ```bash
 python app.py
 ```
+
+# Word Macro
+
+```vba
+Option Explicit
+
+Private Declare PtrSafe Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
+    (ByVal hwnd As LongPtr, ByVal lpOperation As String, ByVal lpFile As String, _
+    ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As LongPtr
+
+
+Sub OpenDocmaker()
+    ' Get the current working directory of the active document
+    Dim workDir As String
+    workDir = ActiveDocument.Path
+    
+    ' Check if the document is saved
+    If workDir = "" Then
+        MsgBox "Please save the document before running the script.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Build the command to execute
+    Dim command As String
+    command = "C:\Users\renato\venvs\docmaker\Scripts\pythonw.exe E:\src\docmaker\main.py """ & workDir & """"
+    
+    ' Execute the command
+    Dim objShell As Object
+    Set objShell = VBA.CreateObject("WScript.Shell")
+    objShell.Run command, 1, True
+    
+    ' Cleanup
+    Set objShell = Nothing
+End Sub
+
+Sub SaveAndOpenPDF()
+    ' Get the current working directory of the active document
+    Dim workDir As String
+    workDir = ActiveDocument.Path
+    
+    ' Check if the document is saved
+    If workDir = "" Then
+        MsgBox "Please save the document before saving as PDF.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Build the PDF file path
+    Dim pdfPath As String
+    pdfPath = workDir & "\" & Replace(ActiveDocument.Name, ".docx", ".pdf")
+    
+    ' Save the document as PDF
+    ActiveDocument.ExportAsFixedFormat OutputFileName:=pdfPath, ExportFormat:=wdExportFormatPDF
+    
+       
+    ' Open the saved PDF with the default application
+    ShellExecute 0, "Open", pdfPath, "", "", vbNormalFocus
+End Sub
+
+
+```

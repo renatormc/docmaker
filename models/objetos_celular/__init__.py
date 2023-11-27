@@ -1,0 +1,1 @@
+from .model import objeto_celular_model
