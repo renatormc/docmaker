@@ -148,3 +148,11 @@ End Sub
 
 
 ```
+
+# env
+
+```
+# DOCMAKER_EXEC=python_executable,main_script
+DOCMAKER_EXEC=C:\Users\myuser\venvs\docmaker\Scripts\pythonw.exe,E:\src\docmaker\main.py
+DOCMAKER_LOCALFOLDER=C:\Users\myuser\.docmaker
+```

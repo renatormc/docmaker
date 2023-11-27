@@ -3,7 +3,7 @@ from docmaker import DocModel
 from pathlib import Path
 from docmaker.converters import PicsAnalyzer
 
-objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.docx")
+objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.odt", format="odt")
 
 objeto_celular_model.widgets= [
     [
@@ -13,11 +13,6 @@ objeto_celular_model.widgets= [
         wt.SSpinBox("n_col_fotos", label="N Col Fotos", min=1, max=2, default=2)
     ]
 ]
-
-# @objeto_celular_model.initial_load()
-# def initial_load():
-#     WORKDIR = Path(".").absolute()
-#     return {"fotos_folder", str(WORKDIR / "fotos")}
 
 @objeto_celular_model.pre_process()
 def pre_process(context):

@@ -9,7 +9,7 @@ import os
 import json
 from pathlib import Path
 import hashlib
-
+import subprocess
 
 XSCRIPTCONTEXT_ = XSCRIPTCONTEXT
 aux = os.getenv("DOCMAKER_LOCAL_FOLDER")
@@ -159,6 +159,13 @@ class Helper:
         else:
             os.system(f"xdg-open \"{path}\"")
 
+    def open_docmaker(self):
+        python_exe, python_script = os.getenv("DOCMAKER_EXEC").split(",")
+        python_exe, python_script = python_exe.strip(), python_script.strip()
+        env = dict(os.environ)
+        env['PYTHONPATH'] = ''
+        subprocess.Popen([python_exe, python_script, str(self.get_doc_path().parent)], env=env)
+
 
 class Funcs:
     def pos_process(self, files_dir=None):
@@ -195,3 +202,8 @@ def pos_process():
 def gen_pdf():
     helper = Helper()
     helper.gen_pdf()
+
+
+def open_docmaker():
+    helper = Helper()
+    helper.open_docmaker()
