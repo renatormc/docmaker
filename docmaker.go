@@ -14,7 +14,7 @@ func main() {
 			break
 		}
 	}
-	cmd := exec.Command("{pythonExe}", "{scriptFile}")
+	cmd := exec.Command("$pythonExe", "$scriptFile")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Env = env
