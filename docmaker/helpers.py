@@ -3,7 +3,7 @@ import subprocess
 from docmaker.config import get_config
 import os
 import json
-from typing import Any, Literal
+from typing import Any
 from docmaker.custom_types import FormatType
 
 def folder_in_path(folder_path):
