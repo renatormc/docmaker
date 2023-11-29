@@ -19,10 +19,9 @@ def convert_pericia(value: str) -> dict:
 
 laudo_model = DocModel(
     "Laudo",
-    lists_folder=APPDIR / "models/laudo/listas",
-    format="odt",
-    filename_in_workdir="laudo.odt",
-    main_template="main_generic.odt"
+    format="docx",
+    filename_in_workdir="laudo.docx",
+    main_template="main_generic.docx"
 )
 
 
@@ -59,11 +58,7 @@ laudo_model.widgets = [
     [
         wt.SText("lacre_entrada", label="Lacre entrada"),
         wt.SText("lacre_saida", label="Lacre saída"),
-        wt.SComboBox("n_midias", "Nº Mídias", choices="opcoes_midias"),
-    ],
-    [
-        wt.SSpacer(stretch=1),
-        wt.SSpinBox("n_col_fotos", label="Colunas fotos", min=1, max=2)
+        
     ]
 ]
 
@@ -74,7 +69,6 @@ def pre_process(context):
     context['peritos'] = context['relatores'] + context['revisores']
     context['objetos'] = PicsAnalyzer("fotos", prefix="Objeto")(WORKDIR)
     context['n_objetos'] = len(context['objetos'])
-    context['pics_width'] = int(150/context['n_col_fotos'])
     return context
 
 

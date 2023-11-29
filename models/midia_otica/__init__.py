@@ -1,0 +1,1 @@
+from .model import midia_otica_model
