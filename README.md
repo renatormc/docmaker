@@ -117,7 +117,7 @@ Sub OpenDocmaker()
     ' Execute the command
     Dim objShell As Object
     Set objShell = VBA.CreateObject("WScript.Shell")
-    objShell.Run command, 1, True
+    objShell.Run command, 1, False
     
     ' Cleanup
     Set objShell = Nothing

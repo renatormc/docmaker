@@ -12,12 +12,13 @@ if TYPE_CHECKING:
 
 
 class SArray:
-    def __init__(self, name: str, widgets: list[list[Widget]], label="", stretch=0, model_name: Optional[str] = None) -> None:
+    def __init__(self, name: str, widgets: list[list[Widget]], label="", stretch=0, model_name: Optional[str] = None, default: list[Any] = []) -> None:
         self._name = name
         self._label = label or self.name
         self._stretch = stretch
         self.widgets = widgets
         self._model_name = model_name
+        self.default = default
         super(SArray, self).__init__()
         self._composites: Optional[list[SComposite]] = None
 
@@ -65,7 +66,7 @@ class SArray:
     def get_widget(self) -> QWidget:
         w = QWidget()
         w.setStyleSheet(f"background-color: {Colors.array_widget_background};")
-        w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        w.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         lay_main = QVBoxLayout()
         # lay_main.setContentsMargins(0,0,0,0)
         # lay_main.setSpacing(0)
@@ -94,7 +95,7 @@ class SArray:
         lay_horizontal.addWidget(self.btn_remove_all)
         lay_horizontal.setSpacing(2)
 
-        lay_horizontal.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        lay_horizontal.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
         self.lbl_total_items = QLabel("Total: 0")
         lay_horizontal.addWidget(self.lbl_total_items)
         
@@ -153,7 +154,7 @@ class SArray:
 
     def load(self, data: list[Any]) -> None:
         n = len(data)
-        self.clear_content()
+        # self.clear_content()
         self.add_items(n)
         for i in range(n):
             self.composites[i].load(data[i])
@@ -161,6 +162,7 @@ class SArray:
 
     def clear_content(self) -> None:
         self.remove_all_items()
+        self.load(self.default)
         # for composite in self.composites:
         #     composite.clear_content()
 
