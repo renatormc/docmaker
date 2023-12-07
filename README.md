@@ -156,3 +156,9 @@ End Sub
 DOCMAKER_EXEC=C:\Users\myuser\venvs\docmaker\Scripts\pythonw.exe,E:\src\docmaker\main.py
 DOCMAKER_LOCALFOLDER=C:\Users\myuser\.docmaker
 ```
+
+# Script PS1
+
+```
+
+```
