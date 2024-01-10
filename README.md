@@ -157,8 +157,13 @@ DOCMAKER_EXEC=C:\Users\myuser\venvs\docmaker\Scripts\pythonw.exe,E:\src\docmaker
 DOCMAKER_LOCALFOLDER=C:\Users\myuser\.docmaker
 ```
 
-# Script PS1
+# Install Linux
 
-```
-
+```bash
+echo "export DOCMAKER_EXEC=$(pyenv which python),$(pwd)/main.py" >> ~/.bashrc
+mkdir ~/.local/bin -p
+echo '#!/bin/bash' > ~/.local/bin/docmaker
+echo "$(pyenv which python) $(pwd)/main.py \$@" >> ~/.local/bin/docmaker
+cat ~/.local/bin/docmaker
+chmod +x ~/.local/bin/docmaker
 ```
