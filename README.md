@@ -160,10 +160,16 @@ DOCMAKER_LOCALFOLDER=C:\Users\myuser\.docmaker
 # Install Linux
 
 ```bash
-echo "export DOCMAKER_EXEC=$(pyenv which python),$(pwd)/main.py" >> ~/.bashrc
+echo "export DOCMAKER_EXEC=$(pyenv which python),$(pwd)/main.py" >> ~/.profile
 mkdir ~/.local/bin -p
 echo '#!/bin/bash' > ~/.local/bin/docmaker
 echo "$(pyenv which python) $(pwd)/main.py \$@" >> ~/.local/bin/docmaker
 cat ~/.local/bin/docmaker
 chmod +x ~/.local/bin/docmaker
+```
+
+# Link macro
+
+```bash
+python -m docmaker link-macro
 ```

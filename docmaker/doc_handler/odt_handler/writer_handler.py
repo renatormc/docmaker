@@ -16,6 +16,7 @@ class WriterHandler:
             res = subprocess.check_output([get_config().loffice_exe, text])
         else:
             cmd = f"soffice 'vnd.sun.star.script:{url}?language=Python&location=user'"
+            print(cmd)
             os.system(cmd)
 
     def run_macro(self, func: str, *args, **kwargs) -> None:

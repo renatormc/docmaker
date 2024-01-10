@@ -174,6 +174,7 @@ class Funcs:
 
     def add_doc(self, path: str):
         helper = Helper()
+        
         helper.add_subdoc_on_selection(Path(path))
 
     def test(self, message):
@@ -185,6 +186,7 @@ class Funcs:
 
 
 def run_func(base64_str):
+    logging.info("Chamou")
     import base64
     json_bytes = base64.b64decode(base64_str)
     json_str = json_bytes.decode('utf-8')
