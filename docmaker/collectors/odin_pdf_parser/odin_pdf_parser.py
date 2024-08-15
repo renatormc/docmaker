@@ -4,6 +4,59 @@ from pdfminer.high_level import extract_text
 from .data_types import OdinParserData
 
 
+class Parser2:
+    def get_ocorrencia(self, text: str) -> str:
+        res = re.search(r'Ocorrência nº:(.+)', text)
+        if res:
+            return res.group(1).strip()
+        return ""
+
+    def get_responsavel(self, text: str) -> str:
+        res = re.search(r'Responsável:(.+)', text)
+        if res:
+            return res.group(1).strip()
+        return ""
+
+    def get_data_criacao(self, text: str) -> str:
+        res = re.search(r'Data de criação:(.+)', text)
+        if res:
+            return res.group(1).strip().split()[0]
+        return ""
+
+    def get_data_ocorrencia(self, text: str) -> str:
+        res = re.search(r'Histórico incluído em:(.+)', text)
+        if res:
+            return res.group(1).strip().split()[0]
+        return ""
+
+    def get_rai(self, text: str) -> str:
+        res = re.search(r'RAI:(.+)', text)
+        if res:
+            return res.group(1).strip()
+        return ""
+
+    def get_unidade_origem(self, text: str) -> str:
+        res = re.search(r'Unidade de origem:(.+)', text)
+        if res:
+            return res.group(1).strip()
+        return ""
+
+    def get_pessoas_envolvidas(self, text: str):
+        res = re.findall(r'(.+?\((.+?)\))', text.split("Pessoas Envolvidas")[1])
+        pessoas = []
+        for item in res:
+            aux = item[1].strip()
+            if aux in ['AUTOR', 'ENVOLVIDO']:
+                pessoas.append(item[0])
+        return pessoas
+
+    def get_conteudo_quesito(self, text: str) -> str:
+        res = re.search(r'Conteúdo:(.+)Perícia vinculada:', text, re.DOTALL)
+        if res:
+            return res.group(1).strip()
+        return ""
+
+
 class OdinPdfParser:
     def __init__(self, file_: str | Path) -> None:
         self.file_ = Path(file_)
@@ -21,7 +74,7 @@ class OdinPdfParser:
 
     def extract_all(self) -> OdinParserData:
         if not self.parts_res:
-            raise Exception("Not possible parse pdf")
+            return self.extract_all2()
         data = OdinParserData()
 
         text = self.parts_res.group(1)
@@ -61,4 +114,18 @@ class OdinPdfParser:
         if res2:
             data.pessoas = [self.change_string_case(p) for p in res2]
 
+        return data
+
+    def extract_all2(self) -> OdinParserData:
+        data = OdinParserData()
+        parser2 = Parser2()
+        data.ocorrencia = parser2.get_ocorrencia(self.text)
+        data.data_ocorrencia = parser2.get_data_ocorrencia(self.text)
+        data.rai = parser2.get_rai(self.text)
+        data.unidade_solicitante = parser2.get_unidade_origem(self.text)
+        data.autoridade = parser2.get_responsavel(self.text)
+        data.pessoas = parser2.get_pessoas_envolvidas(self.text)
+        data.quesito.data_criacao = parser2.get_data_criacao(self.text)
+        data.quesito.responsavel = data.autoridade
+        data.quesito.conteudo = parser2.get_conteudo_quesito(self.text)
         return data
