@@ -13,7 +13,9 @@ import subprocess
 
 XSCRIPTCONTEXT_ = XSCRIPTCONTEXT
 aux = os.getenv("DOCMAKER_LOCAL_FOLDER")
-DOCMAKER_LOCAL_FOLDER = Path(aux) if aux else Path.home() / ".docmaker"
+DOCMAKER_HOME = Path(os.getenv("DOCMAKER_HOME"))
+DOCMAKER_LOCAL_FOLDER = DOCMAKER_HOME / ".local"
+
 TEMPDIR = DOCMAKER_LOCAL_FOLDER / "tmp"
 logging.basicConfig(filename=str(
     DOCMAKER_LOCAL_FOLDER / "docmaker.log"), level=logging.DEBUG)
@@ -160,11 +162,10 @@ class Helper:
             os.system(f"xdg-open \"{path}\"")
 
     def open_docmaker(self):
-        python_exe, python_script = os.getenv("DOCMAKER_EXEC").split(",")
-        python_exe, python_script = python_exe.strip(), python_script.strip()
+        python_script = Path(DOCMAKER_HOME) / "main.py"
         env = dict(os.environ)
         env['PYTHONPATH'] = ''
-        subprocess.Popen([python_exe, python_script, str(self.get_doc_path().parent)], env=env)
+        subprocess.Popen([str(DOCMAKER_HOME / ".venv/Scripts/pythonw.exe"), str(python_script), str(self.get_doc_path().parent)], env=env, cwd=DOCMAKER_HOME)
 
 
 class Funcs:

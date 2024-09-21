@@ -1,33 +1,28 @@
-[tool.poetry]
+[project]
 name = "docmaker"
-version = "0.1.1"
-description = ""
-authors = ["renatormc <renatomartinsrmc@gmail.com>"]
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "bootstrap-flask>=2.4.0",
+    "docxtpl>=0.18.0",
+    "flask>=3.0.3",
+    "jinja2>=3.1.4",
+    "pdfminer-six>=20240706",
+    "pillow>=10.4.0",
+    "pydantic>=2.9.2",
+    "pyside6>=6.7.2",
+    "python-dotenv>=1.0.1",
+    "pywin32>=306 ; platform_system == 'Windows'",
+    "tinydb-serialization>=2.1.1",
+    "tinydb>=4.8.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.12,<3.13"
-jinja2 = "^3.1.2"
-pydantic = "^2.4.2"
-pillow = "^10.1.0"
-flask = "^3.0.0"
-bootstrap-flask = "^2.3.2"
-pyside6 = "^6.6.0"
-python-dotenv = "^1.0.0"
-tinydb = "^4.8.0"
-docxtpl = "^0.16.7"
-beautifulsoup4 = "^4.12.2"
-tinydb-serialization = "^2.1.1"
-pywin32 = {version = "^306", platform = "win32"}
-pdfminer-six = "^20221105"
-
-
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.6.1"
-types-six = "^1.16.21.9"
-types-requests = "^2.31.0.10"
-types-beautifulsoup4 = "^4.12.0.7"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+dev-dependencies = [
+    "mypy>=1.11.2",
+    "types-beautifulsoup4>=4.12.0.20240907",
+    "types-requests>=2.31.0.10",
+]

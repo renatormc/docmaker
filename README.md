@@ -2,13 +2,6 @@
 
 Docmaker is a framework to create forms to generate docx documents. It uses docxtpl and pyside6 libs.
 
-# Install
-
-You need to have python 3.11 installed and install dockmaker with command below:
-
-```bash
-pip install docmaker
-```
 
 # Creating models
 
@@ -152,24 +145,23 @@ End Sub
 # env
 
 ```
-# DOCMAKER_EXEC=python_executable,main_script
-DOCMAKER_EXEC=C:\Users\myuser\venvs\docmaker\Scripts\pythonw.exe,E:\src\docmaker\main.py
-DOCMAKER_LOCALFOLDER=C:\Users\myuser\.docmaker
+DOCMAKER_HOME=E:\src\docmaker
 ```
 
-# Install Linux
-
-```bash
-echo "export DOCMAKER_EXEC=$(pyenv which python),$(pwd)/main.py" >> ~/.profile
-mkdir ~/.local/bin -p
-echo '#!/bin/bash' > ~/.local/bin/docmaker
-echo "$(pyenv which python) $(pwd)/main.py \$@" >> ~/.local/bin/docmaker
-cat ~/.local/bin/docmaker
-chmod +x ~/.local/bin/docmaker
-```
 
 # Link macro
 
 ```bash
 python -m docmaker link-macro
+```
+
+# Install Windows
+```powershell
+try {
+    Push-Location $env:DOCMAKER_HOME
+    uv run main.py @args
+}
+finally {
+    Pop-Location
+}
 ```

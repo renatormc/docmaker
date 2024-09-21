@@ -2,7 +2,6 @@ from docmaker.gui import widgets as wt
 from docmaker.gui.widgets.types import ValidationError
 from docmaker.converters import StringListConverter, DateConverter, PicsAnalyzer
 from docmaker import DocModel
-from settings import APPDIR
 from pathlib import Path
 
 
