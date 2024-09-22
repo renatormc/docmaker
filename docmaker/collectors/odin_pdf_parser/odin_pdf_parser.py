@@ -42,7 +42,7 @@ class Parser2:
         return ""
 
     def get_pessoas_envolvidas(self, text: str):
-        res = re.findall(r'(.+?\((.+?)\))', text.split("Pessoas Envolvidas")[1])
+        res = re.findall(r'(.+?\((.+?)\))', text.split("Pessoas")[1])
         pessoas = []
         for item in res:
             aux = item[1].strip()

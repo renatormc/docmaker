@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
             self.current_form.load_last_context()
         self.scr_form.setWidget(self.current_form)
         self.cbx_form.setCurrentText(name)
+        self.set_renderizar_button_label(self.docmodels[name])
         self.config_buttons()
 
 
@@ -64,7 +65,7 @@ class MainWindow(QMainWindow):
             name = [name for name in self.docmodels.keys()][0]
             self.load_form(name)
         
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setWindowIcon(get_icon("app_icon.png"))
         self.main_layout = QVBoxLayout()
         w = QWidget()
@@ -156,6 +157,9 @@ class MainWindow(QMainWindow):
         self.lay_buttons.addWidget(self.btn_render_file)
 
         self.main_layout.addLayout(self.lay_buttons)
+
+    def set_renderizar_button_label(self, docmodel: 'DocModel') -> None:
+        self.btn_render_file.setText(f"Renderizar {docmodel.format}")
 
     def config_buttons(self) -> None:
         self.btn_initial_load.setVisible(self.current_form.docmodel.has_initial_load())

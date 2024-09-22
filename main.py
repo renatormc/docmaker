@@ -7,6 +7,7 @@ import settings
 import sys
 import os
 
+
 if len(sys.argv) > 1:
     os.chdir(sys.argv[1])
 

@@ -3,7 +3,7 @@ from docmaker import DocModel
 from pathlib import Path
 from docmaker.converters import PicsAnalyzer
 
-objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.docx", format="docx")
+objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.odt", format="odt")
 
 objeto_celular_model.widgets= [
     [
@@ -17,5 +17,5 @@ objeto_celular_model.widgets= [
 @objeto_celular_model.pre_process()
 def pre_process(context):
     context['n_objetos'] = len(context['objetos'])
-    context['pics_width'] = int(150/context['n_col_fotos'])
+    context['pics_width'] = int(150/context['n_col_fotos']) if context['n_col_fotos'] > 1 else 100
     return context

@@ -105,7 +105,7 @@ Sub OpenDocmaker()
     
     ' Build the command to execute
     Dim command As String
-    command = "C:\Users\renato\venvs\docmaker\Scripts\pythonw.exe E:\src\docmaker\main.py """ & workDir & """"
+    command = "E:\src\docmaker\.venv\Scripts\pythonw.exe E:\src\docmaker\main.py """ & workDir & """"
     
     ' Execute the command
     Dim objShell As Object
@@ -158,8 +158,9 @@ python -m docmaker link-macro
 # Install Windows
 ```powershell
 try {
+    $wd = Get-Location
     Push-Location $env:DOCMAKER_HOME
-    uv run main.py @args
+    uv run main.py $wd
 }
 finally {
     Pop-Location
