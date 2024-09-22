@@ -166,3 +166,11 @@ finally {
     Pop-Location
 }
 ```
+
+# Install Linux
+```bash
+#!/bin/bash
+wd=$(pwd)
+cd $DOCMAKER_HOME && ur run main.py $wd
+```
+
