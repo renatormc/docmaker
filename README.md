@@ -149,11 +149,19 @@ DOCMAKER_HOME=E:\src\docmaker
 ```
 
 
-# Link macro
+# Macro Libreoffice
 
 ```bash
-python -m docmaker link-macro
+sudo apt install libreoffice-script-provider-python
 ```
+
+## Locais
+
+Linux
+~/.config/libreoffice/4/user/Scripts/python
+
+Windodws
+C:\Users\<user>\AppData\Roaming\LibreOffice\4\user\Scripts\python
 
 # Install Windows
 ```powershell
