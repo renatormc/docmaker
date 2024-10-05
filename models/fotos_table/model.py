@@ -6,8 +6,8 @@ from docmaker.converters import IntConverter
 
 fotos_table_model = DocModel("Tabela fotos",
                              templates_folder=APPDIR / "models/fotos_table/templates",
-                             format="odt",
-                             main_template="main.odt",
+                             format="docx",
+                             main_template="main.docx",
                              filename_in_workdir="",
                              )
 

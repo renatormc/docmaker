@@ -18,9 +18,9 @@ def convert_pericia(value: str) -> dict:
 
 laudo_model = DocModel(
     "Laudo",
-    format="odt",
-    filename_in_workdir="laudo.odt",
-    main_template="main_generic.odt"
+    format="docx",
+    filename_in_workdir="laudo.docx",
+    main_template="main_generic.docx"
 )
 
 
@@ -28,21 +28,16 @@ laudo_model.widgets = [
     [
         wt.SText("pericia", label="Pericia",
                  placeholder="SEQ/RG/ANO", converter=convert_pericia),
-        wt.SText("requisitante", label="Requisitante"),
         wt.SText("procedimento", label="Procedimento",
                  placeholder="RAI ou inquérito"),
-        wt.SText("ocorrencia_odin", label="Ocorrência ODIN")
+        wt.SText("requisitante", label="Requisitante",
+                 placeholder="Delegacia ou judiciário", stretch=1),
     ],
     [
-        wt.SText("data_odin", label="Data ODIN", converter=DateConverter()),
         wt.SText("inicio_exame", label="Inicio Exame",
                  converter=DateConverter()),
         wt.SText("data_recimento", label="data de recebimento",
                  converter=DateConverter()),
-    ],
-    [
-        wt.SText("n_quesito", label="Número quesito"),
-        wt.SText("autoridade", label="Autoridade"),
     ],
     [
         wt.SText("pessoas_envolvidas", label="Pessoas envolvidas",
@@ -54,11 +49,6 @@ laudo_model.widgets = [
         wt.SText("revisores", label="Revisores",
                  placeholder="Revisores separados por vírgula", converter=StringListConverter()),
     ],
-    [
-        wt.SText("lacre_entrada", label="Lacre entrada"),
-        wt.SText("lacre_saida", label="Lacre saída"),
-        
-    ]
 ]
 
 
@@ -83,11 +73,6 @@ def initial_load():
     data = parser.extract_all()
     return {
         'pericia': str(data.pericia),
-        'requisitante': data.quesito.unidade_origem,
         'procedimento': f"RAI {data.rai}",
-        'ocorrencia_odin': data.ocorrencia,
-        'data_odin': data.data_ocorrencia,
-        'n_quesito': data.quesito.numero,
-        'autoridade': data.quesito.responsavel,
         'pessoas_envolvidas': ", ".join(data.pessoas)
     }
