@@ -10,7 +10,9 @@ import argparse
 import subprocess
 
 parser = argparse.ArgumentParser()
-subparsers = parser.add_subparsers(dest="command", required=True, help='Command to be used')
+subparsers = parser.add_subparsers(dest="command", help='Command to be used')
+
+parser.set_defaults(command="gui")
 
 p_gui = subparsers.add_parser("gui")
 p_gui.add_argument("-w", default=".", help="workdir")
@@ -23,8 +25,8 @@ p_update = subparsers.add_parser("update")
 
 args = parser.parse_args()
 if args.command == "gui":
-    if args.w:
-        os.chdir(args.w)    
+    if hasattr(args, 'w') and args.w:
+        os.chdir(args.w)
     app = App()
     app.set_templates_folder(settings.APPDIR / "models/templates")
     app.set_env(settings.ENV)
