@@ -103,9 +103,19 @@ Sub OpenDocmaker()
         Exit Sub
     End If
     
+    ' Get the DOCMAKER_HOME environment variable
+    Dim docmakerHome As String
+    docmakerHome = Environ("DOCMAKER_HOME")
+    
+    ' Check if the environment variable is set
+    If docmakerHome = "" Then
+        MsgBox "Environment variable DOCMAKER_HOME is not set.", vbExclamation
+        Exit Sub
+    End If
+    
     ' Build the command to execute
     Dim command As String
-    command = "E:\src\docmaker\.venv\Scripts\pythonw.exe E:\src\docmaker\main.py """ & workDir & """"
+    command = docmakerHome & "\.venv\Scripts\pythonw.exe " & docmakerHome & "\main.py gui -w """ & workDir & """"
     
     ' Execute the command
     Dim objShell As Object
@@ -115,6 +125,7 @@ Sub OpenDocmaker()
     ' Cleanup
     Set objShell = Nothing
 End Sub
+
 
 Sub SaveAndOpenPDF()
     ' Get the current working directory of the active document
