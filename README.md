@@ -174,22 +174,13 @@ Linux
 Windodws
 C:\Users\<user>\AppData\Roaming\LibreOffice\4\user\Scripts\python
 
-# Install Windows
-```powershell
-try {
-    $wd = Get-Location
-    Push-Location $env:DOCMAKER_HOME
-    uv run main.py $wd
-}
-finally {
-    Pop-Location
-}
-```
 
 # Install Linux
 ```bash
-#!/bin/bash
-wd=$(pwd)
-cd $DOCMAKER_HOME && ur run main.py $wd
+mkdir -p ~/.local/bin
+cp docmaker.sh ~/.local/bin/docmaker
+chmod +x ~/.local/bin/docmaker
+mkdir -p ~/.config/libreoffice/4/user/Scripts/python
+ln -s "$(pwd)/docmaker/macros/docmaker.py" "$HOME/.config/libreoffice/4/user/Scripts/python/docmaker.py"
 ```
 

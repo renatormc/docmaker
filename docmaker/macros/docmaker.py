@@ -166,9 +166,9 @@ class Helper:
         env = dict(os.environ)
         env['PYTHONPATH'] = ''
         if os.name == "nt":
-            subprocess.Popen([str(DOCMAKER_HOME / ".venv/Scripts/pythonw.exe"), str(python_script), str(self.get_doc_path().parent)], env=env, cwd=DOCMAKER_HOME)
+            subprocess.Popen([str(DOCMAKER_HOME / ".venv/Scripts/pythonw.exe"), str(python_script), "gui", "-w", str(self.get_doc_path().parent)], env=env)
         else:
-            subprocess.Popen([str(DOCMAKER_HOME / ".venv/bin/python"), str(python_script), str(self.get_doc_path().parent)], env=env, cwd=DOCMAKER_HOME)
+            subprocess.Popen([str(DOCMAKER_HOME / ".venv/bin/python"), str(python_script), "gui", "-w", str(self.get_doc_path().parent)], env=env)
 
 
 class Funcs:
@@ -178,7 +178,7 @@ class Funcs:
 
     def add_doc(self, path: str):
         helper = Helper()
-        
+
         helper.add_subdoc_on_selection(Path(path))
 
     def test(self, message):
