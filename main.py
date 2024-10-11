@@ -1,4 +1,5 @@
 from operator import setitem
+import shutil
 from docmaker import App
 from models.laudo.model import laudo_model
 from models.midia_otica.model import midia_otica_model
@@ -38,7 +39,10 @@ if args.command == "gui":
 
     app.run_gui()  
 elif args.command == "templates":
-    subprocess.Popen(['explorer.exe', str(settings.APPDIR / "models/templates")])
+    if os.name == "nt":
+        subprocess.Popen(['explorer.exe', str(settings.APPDIR / "models/templates")])
+    else:
+        subprocess.Popen(['xdg-open', str(settings.APPDIR / "models/templates")])
 elif args.command == "code":
     os.system(f"code \"{settings.APPDIR}\"")
 elif args.command == "update":
