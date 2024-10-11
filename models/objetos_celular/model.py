@@ -3,13 +3,17 @@ from docmaker import DocModel
 from pathlib import Path
 from docmaker.converters import PicsAnalyzer
 
-objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.docx", format="docx")
+objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.odt", format="odt")
+
+path = Path(".") / "fotos"
+if not path.is_dir():
+    path = Path(".")
 
 objeto_celular_model.widgets= [
     [
         wt.SFileChooser("objetos", label="Pasta fotos", type="dir", required=True, 
-                        converter=PicsAnalyzer("fotos", prefix="Objeto"),
-                        default=str(Path(".").absolute())),
+                        converter=PicsAnalyzer(prefix="Objeto"),
+                        default=str(path.absolute())),
         wt.SSpinBox("n_col_fotos", label="N Col Fotos", min=1, max=2, default=2)
     ]
 ]

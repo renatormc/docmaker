@@ -165,10 +165,11 @@ class Helper:
         python_script = Path(DOCMAKER_HOME) / "main.py"
         env = dict(os.environ)
         env['PYTHONPATH'] = ''
+        workdir = self.get_doc_path().parent
         if os.name == "nt":
-            subprocess.Popen([str(DOCMAKER_HOME / ".venv/Scripts/pythonw.exe"), str(python_script), "gui", "-w", str(self.get_doc_path().parent)], env=env)
+            subprocess.Popen([str(DOCMAKER_HOME / ".venv/Scripts/pythonw.exe"), str(python_script), "gui", "-w", str(workdir)], env=env, cwd=str(workdir))
         else:
-            subprocess.Popen([str(DOCMAKER_HOME / ".venv/bin/python"), str(python_script), "gui", "-w", str(self.get_doc_path().parent)], env=env)
+            subprocess.Popen([str(DOCMAKER_HOME / ".venv/bin/python"), str(python_script), "gui", "-w", str(workdir)], env=env, cwd=str(workdir))
 
 
 class Funcs:
