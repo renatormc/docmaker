@@ -15,7 +15,7 @@ fotos_table_model.widgets = [
 
     [
         wt.SFileChooser("files", label="Pasta com fotos", type="dir", required=True, stretch=3),
-        wt.SText("width", label="Largura total", placeholder="Em milímetros", converter=IntConverter(default=-1), stretch=1)
+        wt.SText("width", label="Largura total", placeholder="Em milímetros", converter=IntConverter(default=-1), stretch=1, default=80)
     ],
     [
         wt.SText("caption", label="Legenda", stretch=4),
@@ -40,5 +40,6 @@ def pre_process(context):
             w = 80
     else:
         w = int(context['width']/context['n_cols'])
+        
     context['pics'] = [{'path': str(f), 'caption': get_name(f, context['show_caption']), 'width': w} for f in Path(context['files']).iterdir()]
     return context

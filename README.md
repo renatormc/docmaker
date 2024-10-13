@@ -153,30 +153,20 @@ End Sub
 
 ```
 
-# env
 
+
+# Install Windows
+```powershell
+$docmakerHome = Get-Location
+[Environment]::SetEnvironmentVariable("DOCMAKER_HOME", $docmakerHome, "User")
+Copy-Item .\docmaker.ps1 ~\bin\docmaker.ps1
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\AppData\Roaming\LibreOffice\4\user\Scripts\python\docmaker.py" -Target "$docmakerHome\docmaker\macros\docmaker.py"
 ```
-DOCMAKER_HOME=E:\src\docmaker
-```
-
-
-# Macro Libreoffice
-
-```bash
-sudo apt install libreoffice-script-provider-python
-```
-
-## Locais
-
-Linux
-~/.config/libreoffice/4/user/Scripts/python
-
-Windodws
-C:\Users\<user>\AppData\Roaming\LibreOffice\4\user\Scripts\python
 
 
 # Install Linux
 ```bash
+sudo apt install libreoffice-script-provider-python -y
 mkdir -p ~/.local/bin
 cp docmaker.sh ~/.local/bin/docmaker
 chmod +x ~/.local/bin/docmaker
