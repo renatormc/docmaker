@@ -3,7 +3,7 @@ from docmaker import DocModel
 from pathlib import Path
 from docmaker.converters import PicsAnalyzer
 
-objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.odt", format="odt")
+objeto_celular_model = DocModel("Objetos celular", main_template="celular_objetos.docx", format="docx")
 
 path = Path(".") / "fotos"
 if not path.is_dir():

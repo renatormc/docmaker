@@ -18,9 +18,9 @@ def convert_pericia(value: str) -> dict:
 
 laudo_model = DocModel(
     "Laudo",
-    format="odt",
-    filename_in_workdir="laudo.odt",
-    main_template="main_generic.odt"
+    format="docx",
+    filename_in_workdir="laudo.docx",
+    main_template="main_generic.docx"
 )
 
 
