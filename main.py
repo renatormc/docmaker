@@ -1,5 +1,3 @@
-from operator import setitem
-import shutil
 from docmaker import App
 from models.laudo.model import laudo_model
 from models.midia_otica.model import midia_otica_model
